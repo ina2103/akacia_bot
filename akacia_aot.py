@@ -761,6 +761,7 @@ def main():
         entry_points=[
             CommandHandler(COMMAND_AOT_FREE_APART, command_free_apart)
         ],
+        states={},
         fallbacks=[ 
             MessageHandler(Filters.command, command_exit)
         ],
