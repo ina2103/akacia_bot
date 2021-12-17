@@ -401,7 +401,7 @@ def process__free_apart(update: Update, context: CallbackContext):
     chat_id = update.message.chat.id
     data = read_pgsql(("SELECT DISTINCT apartment_type_name, apartment_floor,"
         "ARRAY_TO_STRING(ARRAY(SELECT apartment_number FROM vw_free_apartment b WHERE a.apartment_floor = b.apartment_floor "
-        "AND a.apartment_type_name = b.apartment_type_name), ', ', '') as apart"
+        "AND a.apartment_type_name = b.apartment_type_name), ', ', '') as apart "
         "FROM vw_free_apartment a"))
     if not data.empty:
         records = []
