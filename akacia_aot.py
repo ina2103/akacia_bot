@@ -261,8 +261,8 @@ def conversation__transfer_cashboxes(update: Update, context: CallbackContext):
     staff_id = update.message.from_user.username
     params = update.message.text.split(" > ")
     cashboxes = select_allowed_cashboxes(staff_id)
-    from_cashbox = next(([cashbox for cashbox in cashboxes if cashbox["cashbox_name"]==params[0]]), None)
-    to_cashbox = next(([cashbox for cashbox in cashboxes if cashbox["cashbox_name"]==params[1]]), None)
+    from_cashbox = next((cashbox for cashbox in cashboxes if cashbox["cashbox_name"]==params[0]), None)
+    to_cashbox = next((cashbox for cashbox in cashboxes if cashbox["cashbox_name"]==params[1]), None)
     if from_cashbox is None or to_cashbox is None:
         telegram_send(context.bot, chat_id, TEMPLATE_SELECT_CASHBOXES)
         return WAITING_CASHBOX
