@@ -270,6 +270,7 @@ TEMPLATE_SUM_TO_TRANSFER = "Введите сумму для перевода и
     " Текущий остаток в кассе <b>{}</b> — <b>{}€</b>."
 TEMPLATE_TRANSFER_COMPLETED = "Перевод завершён:\n<b>{}€</b> переведены из кассы <b>{}</b> в кассу <b>{}</b>."
 TEMPLATE_TRANSFER_ERROR = "Сумма перевода не должна превышать остаток в кассе или быть нулевой.\n" + TEMPLATE_SUM_TO_TRANSFER
+TEMPLATE_TRANSFER_GENERAL_ERROR = "Ошибка при попытке перевода. Сорян, братан, не сегодня."
 TEMPLATE_UPLOAD_SELECT_SERVICE = "Выберите вид коммунальных услуг для загрузки данных"
 TEMPLATE_UPLOAD_SEND_FILE = "Отправьте файл с начислениями по услуге "
 TEMPLATE_UPLOAD_SUCCESS = "Данные по начислениям были записаны в базу"

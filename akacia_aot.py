@@ -130,6 +130,25 @@ def command_state(update: Update, context: CallbackContext):
     return conversation__state(update, context)
 
 
+def command_transfer(update: Update, context: CallbackContext):
+    staff_id = update.message.from_user.username
+    chat_id = update.message.chat.id
+    staff = check_staff(staff_id, COMMAND_AOT_TRANSFER)
+    if not staff:
+        telegram_send(context.bot, chat_id, TEMPLATE_MANAGER_NO_PERMISSION)
+        return ConversationHandler.END
+    cashboxes = select_allowed_cashboxes(staff_id)
+    cash = [cashbox["cashbox_name"] for cashbox in cashboxes if cashbox["cashbox_is_cash"]]
+    if len(cash) > 1:
+        buttons = [[f"{x} > {y}"] for x in cash for y in cash if x != y]
+        reply_markup = ReplyKeyboardMarkup(buttons, resize_keyboard=True)
+        telegram_send(context.bot, chat_id, TEMPLATE_SELECT_CASHBOXES, reply_markup=reply_markup)
+        return WAITING_CASHBOX
+    else:
+        telegram_send(context.bot, chat_id, TEMPLATE_NO_CASHBOXES)
+        return ConversationHandler.END
+
+
 def command_upload(update: Update, context: CallbackContext):
     staff_id = update.message.from_user.username
     chat_id = update.message.chat.id
@@ -235,6 +254,42 @@ def conversation__state(update: Update, context: CallbackContext):
         return WAITING_MONTH
     else:
         return ConversationHandler.END
+
+
+def conversation__transfer_cashboxes(update: Update, context: CallbackContext):
+    chat_id = update.message.chat.id
+    staff_id = update.message.from_user.username
+    params = update.message.text.split(" > ")
+    cashboxes = select_allowed_cashboxes(staff_id)
+    from_cashbox = next(([cashbox for cashbox in cashboxes if cashbox["cashbox_name"]==params[0]]), None)
+    to_cashbox = next(([cashbox for cashbox in cashboxes if cashbox["cashbox_name"]==params[1]]), None)
+    if from_cashbox is None or to_cashbox is None:
+        telegram_send(context.bot, chat_id, TEMPLATE_SELECT_CASHBOXES)
+        return WAITING_CASHBOX
+    context.user_data["from_cashbox"] = from_cashbox
+    context.user_data["to_cashbox"] = to_cashbox
+    telegram_send(context.bot, chat_id,
+        TEMPLATE_SUM_TO_TRANSFER.format(params[0], params[1],
+        context.user_data["from_cashbox"].name, context.user_data["from_cashbox"].balance))
+    return WAITING_SUM
+
+
+def conversation__transfer_sum(update: Update, context: CallbackContext):
+    chat_id = update.message.chat.id
+    summa = 0
+    try:
+        summa = int(update.message.text)
+    except ValueError:
+        pass
+    if summa == 0:
+        telegram_send(context.bot, chat_id, TEMPLATE_ERROR_SUM[:TEMPLATE_ERROR_SUM.find(" [")])
+        return WAITING_SUM
+    if summa > context.user_data["from_cashbox"].balance:
+        telegram_send(context.bot, chat_id, TEMPLATE_TRANSFER_ERROR.format(context.user_data["from_cashbox"].name, 
+            context.user_data["to_cashbox"].name, context.user_data["from_cashbox"].name, context.user_data["from_cashbox"].balance))
+        return WAITING_SUM
+    context.user_data["summa"] = summa
+    return process__transfer_money(update, context)
 
 
 def conversation__upload_select_service(update: Update, context: CallbackContext):
@@ -591,6 +646,20 @@ def process__tenant(update: Update, context: CallbackContext):
         telegram_send(context.bot, chat_id, TEMPLATE_ERROR_IN_APART, reply_markup=ReplyKeyboardRemove())
         return ConversationHandler.END
 
+
+def process__transfer_money(update: Update, context: CallbackContext):
+    chat_id = update.message.chat.id
+    staff_id = update.message.from_user.username
+    from_cashbox = context.user_data["from_cashbox"]
+    to_cashbox = context.user_data["to_cashbox"]
+    summa = context.user_data["summa"]
+    if exec_pgsql((f"call sp_add_transfer_order({staff_id}::smallint, {from_cashbox['cashbox_id']}::smallint, "
+        "{to_cashbox['cashbox_id']}::smallint, {summa}::money);")):
+        text = TEMPLATE_TRANSFER_COMPLETED.format(summa, from_cashbox["name"], to_cashbox["name"])
+    else:
+        text = TEMPLATE_TRANSFER_GENERAL_ERROR
+    telegram_send(context.bot, chat_id, text)
+    return ConversationHandler.END
 
 def error_handler(update: object, context: CallbackContext) -> None:
     log_error(context.error)
