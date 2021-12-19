@@ -657,7 +657,7 @@ def process__transfer_money(update: Update, context: CallbackContext):
     summa = context.user_data["summa"]
     if exec_pgsql((f"call sp_add_transfer_order('{staff_id}', {from_cashbox['cashbox_id']}::smallint, "
         f"{to_cashbox['cashbox_id']}::smallint, {summa}::money);")):
-        text = TEMPLATE_TRANSFER_COMPLETED.format(summa, from_cashbox["name"], to_cashbox["name"])
+        text = TEMPLATE_TRANSFER_COMPLETED.format(summa, from_cashbox["cashbox_name"], to_cashbox["cashbox_name"])
     else:
         text = TEMPLATE_TRANSFER_GENERAL_ERROR
     telegram_send(context.bot, chat_id, text)
