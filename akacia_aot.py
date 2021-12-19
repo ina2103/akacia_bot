@@ -797,6 +797,27 @@ def main():
             "Неподдерживаемая команда", ret_val=ConversationHandler.END)
     ), 7)
 
+    
+    dispatcher.add_handler(ConversationHandler(
+        name="transfer",
+        entry_points=[
+            CommandHandler(COMMAND_AOT_TRANSFER, command_transfer)
+        ],
+        states={
+            WAITING_CASHBOX: [
+                MessageHandler(Filters.regex(r"^.+\s[>]\s.+$") & ~Filters.command, conversation__transfer_cashboxes),
+            ],
+            WAITING_SUM: [
+                MessageHandler(Filters.regex(r"^\d+$") & ~Filters.command, conversation__transfer_sum),
+            ]
+        },
+        fallbacks=[
+            MessageHandler(Filters.command, command_exit)
+        ],
+        conversation_timeout=60
+        ), 8)
+
+
     dispatcher.add_handler(ConversationHandler(
         name="state",
         entry_points=[
