@@ -655,7 +655,7 @@ def process__transfer_money(update: Update, context: CallbackContext):
     from_cashbox = context.user_data["from_cashbox"]
     to_cashbox = context.user_data["to_cashbox"]
     summa = context.user_data["summa"]
-    if exec_pgsql((f"call sp_add_transfer_order({staff_id}::smallint, {from_cashbox['cashbox_id']}::smallint, "
+    if exec_pgsql((f"call sp_add_transfer_order('{staff_id}', {from_cashbox['cashbox_id']}::smallint, "
         f"{to_cashbox['cashbox_id']}::smallint, {summa}::money);")):
         text = TEMPLATE_TRANSFER_COMPLETED.format(summa, from_cashbox["name"], to_cashbox["name"])
     else:
