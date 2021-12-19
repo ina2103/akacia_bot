@@ -270,7 +270,7 @@ def conversation__transfer_cashboxes(update: Update, context: CallbackContext):
     context.user_data["to_cashbox"] = to_cashbox
     telegram_send(context.bot, chat_id,
         TEMPLATE_SUM_TO_TRANSFER.format(params[0], params[1],
-        context.user_data["from_cashbox"].name, context.user_data["from_cashbox"].balance))
+        context.user_data["from_cashbox"]["name"], context.user_data["from_cashbox"]["balance"]))
     return WAITING_SUM
 
 
