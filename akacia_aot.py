@@ -270,7 +270,8 @@ def conversation__transfer_cashboxes(update: Update, context: CallbackContext):
     context.user_data["to_cashbox"] = to_cashbox
     telegram_send(context.bot, chat_id,
         TEMPLATE_SUM_TO_TRANSFER.format(params[0], params[1],
-        context.user_data["from_cashbox"]["cashbox_name"], context.user_data["from_cashbox"]["balance"]))
+        context.user_data["from_cashbox"]["cashbox_name"], context.user_data["from_cashbox"]["balance"]),
+        reply_markup=ReplyKeyboardRemove())
     return WAITING_SUM
 
 
@@ -285,8 +286,9 @@ def conversation__transfer_sum(update: Update, context: CallbackContext):
         telegram_send(context.bot, chat_id, TEMPLATE_ERROR_SUM[:TEMPLATE_ERROR_SUM.find(" [")])
         return WAITING_SUM
     if summa > context.user_data["from_cashbox"].balance:
-        telegram_send(context.bot, chat_id, TEMPLATE_TRANSFER_ERROR.format(context.user_data["from_cashbox"].name, 
-            context.user_data["to_cashbox"].name, context.user_data["from_cashbox"].name, context.user_data["from_cashbox"].balance))
+        telegram_send(context.bot, chat_id, TEMPLATE_TRANSFER_ERROR.format(context.user_data["from_cashbox"]["cashbox_name"], 
+            context.user_data["to_cashbox"]["cashbox_name"], context.user_data["from_cashbox"]["cashbox_name"],
+            context.user_data["from_cashbox"]["balance"]), reply_markup=ReplyKeyboardRemove())
         return WAITING_SUM
     context.user_data["summa"] = summa
     return process__transfer_money(update, context)
