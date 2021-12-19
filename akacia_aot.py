@@ -285,7 +285,7 @@ def conversation__transfer_sum(update: Update, context: CallbackContext):
     if summa == 0:
         telegram_send(context.bot, chat_id, TEMPLATE_ERROR_SUM[:TEMPLATE_ERROR_SUM.find(" [")])
         return WAITING_SUM
-    if summa > context.user_data["from_cashbox"].balance:
+    if summa > context.user_data["from_cashbox"]["balance"]:
         telegram_send(context.bot, chat_id, TEMPLATE_TRANSFER_ERROR.format(context.user_data["from_cashbox"]["cashbox_name"], 
             context.user_data["to_cashbox"]["cashbox_name"], context.user_data["from_cashbox"]["cashbox_name"],
             context.user_data["from_cashbox"]["balance"]), reply_markup=ReplyKeyboardRemove())
