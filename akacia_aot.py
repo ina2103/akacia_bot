@@ -833,7 +833,6 @@ def main():
             "Неподдерживаемая команда", ret_val=ConversationHandler.END)
     ), 7)
 
-    
     dispatcher.add_handler(ConversationHandler(
         name="transfer",
         entry_points=[
@@ -853,7 +852,6 @@ def main():
         conversation_timeout=60
         ), 8)
 
-
     dispatcher.add_handler(ConversationHandler(
         name="state",
         entry_points=[
@@ -869,7 +867,7 @@ def main():
         ],
         conversation_timeout=60
         ), 12)
-    
+
     dispatcher.add_handler(ConversationHandler(
         name="debtors",
         entry_points=[
@@ -881,7 +879,6 @@ def main():
         ],
         conversation_timeout=60
         ), 13)
-    
 
     dispatcher.add_handler(ConversationHandler(
         name="debtors_no_balance",
@@ -894,7 +891,6 @@ def main():
         ],
         conversation_timeout=60
         ), 15)
-    
 
     dispatcher.add_handler(ConversationHandler(
         name="free_apart",
