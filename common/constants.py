@@ -276,5 +276,6 @@ TEMPLATE_STATE = ("За <b>{}</b> начислено:\n— аренда <b>{:.0f
 "— итого <b>{:.0f}€</b>\n\n Поступлений <b>{:.0f}€.</b>\n Остаток <b>{:.0f}€.</b>\n Занято квартир: <b>{}</b>.\n")
 TEMPLATE_DEBTORS_ADM = ("За <b>{}</b> не было оплат:\n\n")
 TEMPLATE_DEBTORS_ROW = "— {}, {}, @{}, {:.0f}€\n"
+TEMPLATE_DEBTORS_NO_BALANCE_ROW = "— {}, {}, @{}\n"
 TEMPLATE_FREE_APART_ADM = ("<b>{}</b>:\n")
 TEMPLATE_FREE_APART_ROW = "— {} этаж: {}\n"
