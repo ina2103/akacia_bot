@@ -149,8 +149,7 @@ def command_transfer(update: Update, context: CallbackContext):
         return ConversationHandler.END
     cashboxes = select_allowed_cashboxes(staff_id)
     cash = [cashbox["cashbox_name"] for cashbox in cashboxes if cashbox["cashbox_is_cash"]]
-    if len(context.args) == 1:
-        cashboxes = cash
+    if (len(context.args) == 1) and ("mike" in cash) and ("anna" in cash):
         from_cashbox = next((cashbox for cashbox in cashboxes if cashbox["cashbox_name"]=="anna"), None)
         to_cashbox = next((cashbox for cashbox in cashboxes if cashbox["cashbox_name"]=="mike"), None)
         if (from_cashbox is not None) and (to_cashbox is not None):
