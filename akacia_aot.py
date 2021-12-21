@@ -874,6 +874,20 @@ def main():
         conversation_timeout=60
         ), 13)
     
+
+    dispatcher.add_handler(ConversationHandler(
+        name="debtors_no_balance",
+        entry_points=[
+            CommandHandler(COMMAND_AOT_DEBTORS_NO_BALANCE, command_debtors_no_balance)
+        ],
+        states={},
+        fallbacks=[ 
+            MessageHandler(Filters.command, command_exit)
+        ],
+        conversation_timeout=60
+        ), 15)
+    
+
     dispatcher.add_handler(ConversationHandler(
         name="free_apart",
         entry_points=[
