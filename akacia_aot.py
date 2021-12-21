@@ -156,7 +156,7 @@ def command_transfer(update: Update, context: CallbackContext):
             context.user_data["from_cashbox"] = from_cashbox
             context.user_data["to_cashbox"] = to_cashbox
             update.message.text = context.args[0]
-            return WAITING_SUM
+            return conversation__transfer_sum(update, context)
     if len(cash) > 1:
         buttons = [[f"{x} > {y}"] for x in cash for y in cash if x != y]
         reply_markup = ReplyKeyboardMarkup(buttons, resize_keyboard=True)
