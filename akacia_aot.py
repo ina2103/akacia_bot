@@ -72,6 +72,16 @@ def command_debtors(update: Update, context: CallbackContext):
     return process__debtors(update, context)
 
 
+def command_debtors_no_balance(update: Update, context: CallbackContext):
+    staff_id = update.message.from_user.username
+    chat_id = update.message.chat.id
+    staff = check_staff(staff_id, COMMAND_AOT_DEBTORS_NO_BALANCE)
+    if not staff:
+        telegram_send(context.bot, chat_id, TEMPLATE_MANAGER_NO_PERMISSION)
+        return ConversationHandler.END
+    return process__debtors_no_balance(update, context)
+
+
 def command_exit(update: Update, context: CallbackContext):
     chat_id = update.message.chat.id
     telegram_send(context.bot, chat_id, TEMPLATE_EXIT_CONVERSATION[LANGUAGE_RU], reply_markup=ReplyKeyboardRemove())
@@ -447,6 +457,22 @@ def process__debtors(update: Update, context: CallbackContext):
         records = []
         for row in data.itertuples():
             records.append(TEMPLATE_DEBTORS_ROW.format(row. apartment_id, row.tenant_full_name, row.tenant_telegram, row.balance))
+        text = TEMPLATE_DEBTORS_ADM.format(month, year)
+        if len(records) > 0:
+            text += "".join(records)
+        telegram_send(context.bot, chat_id, text, reply_markup=ReplyKeyboardRemove())
+        return ConversationHandler.END
+
+
+def process__debtors_no_balance(update: Update, context: CallbackContext):
+    year = date.today().year
+    month = MONTHS[LANGUAGE_RU][date.today().month - 1]
+    chat_id = update.message.chat.id
+    data = read_pgsql(f"select apartment_id, tenant_full_name, tenant_telegram from vw_debtors")
+    if not data.empty:
+        records = []
+        for row in data.itertuples():
+            records.append(TEMPLATE_DEBTORS_NO_BALANCE_ROW.format(row. apartment_id, row.tenant_full_name, row.tenant_telegram))
         text = TEMPLATE_DEBTORS_ADM.format(month, year)
         if len(records) > 0:
             text += "".join(records)
