@@ -234,9 +234,6 @@ TEMPLATE_ERROR_IN_APART = "Неверный номер квартиры, имя 
 TEMPLATE_SEND_APART = "Отправьте номер квартиры" + TEMPLATE_COMMAND_EXIT[LANGUAGE_RU]
 TEMPLATE_SEND_TENANT = "Отправьте имя арендатора из квартиры <b>{}</b>" + TEMPLATE_COMMAND_EXIT[LANGUAGE_RU]
 TEMPLATE_SEND_SUM = ("Отправьте сумму, принятую от <b>{}</b> из квартиры <b>{}</b>.\n"
-    "Способы:\n"
-    " — сумма принятая <i>пробел</i> <b>-</b> <i>пробел</i> [комментарий]\n"
-    " — сумма принятая <i>пробел</i> сумма для зачисления <i>пробел</i> [комментарий]\n"
     f"{TEMPLATE_COMMAND_EXIT[LANGUAGE_RU]}")
 TEMPLATE_ERROR_SUM = "Неверная сумма."
 TEMPLATE_CONFIRM_SUM = "Внести <b>{:.2f}€</b> (как <b>{:.2f}€</b>) от <b>{}</b> в счёт оплаты квартиры <b>{}</b>?"
