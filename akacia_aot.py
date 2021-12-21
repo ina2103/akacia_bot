@@ -149,6 +149,15 @@ def command_transfer(update: Update, context: CallbackContext):
         return ConversationHandler.END
     cashboxes = select_allowed_cashboxes(staff_id)
     cash = [cashbox["cashbox_name"] for cashbox in cashboxes if cashbox["cashbox_is_cash"]]
+    if len(context.args) == 1:
+        cashboxes = cash
+        from_cashbox = next((cashbox for cashbox in cashboxes if cashbox["cashbox_name"]=="anna"), None)
+        to_cashbox = next((cashbox for cashbox in cashboxes if cashbox["cashbox_name"]=="mike"), None)
+        if (from_cashbox is not None) and (to_cashbox is not None):
+            context.user_data["from_cashbox"] = from_cashbox
+            context.user_data["to_cashbox"] = to_cashbox
+            update.message.text = context.args[0]
+            return process__transfer_money(update, context)
     if len(cash) > 1:
         buttons = [[f"{x} > {y}"] for x in cash for y in cash if x != y]
         reply_markup = ReplyKeyboardMarkup(buttons, resize_keyboard=True)
