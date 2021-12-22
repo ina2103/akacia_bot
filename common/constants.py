@@ -265,7 +265,7 @@ TEMPLATE_SELECT_CASHBOX = "Выберите кассу для внесения" 
 TEMPLATE_SELECT_CASHBOXES = "Выберите кассы" + TEMPLATE_COMMAND_EXIT[LANGUAGE_RU]
 TEMPLATE_SUM_TO_TRANSFER = "Введите сумму для перевода из кассы <b>{}</b> в кассу <b>{}</b>" + TEMPLATE_COMMAND_EXIT[LANGUAGE_RU] + \
     " Текущий остаток в кассе <b>{}</b> — <b>{}€</b>."
-TEMPLATE_TRANSFER_COMPLETED = "Перевод завершён:\n<b>{}€</b> переведены из кассы <b>{}</b> в кассу <b>{}</b>."
+TEMPLATE_TRANSFER_COMPLETED = "Совершён перевод:\n<b>{}€</b> переведены из кассы <b>{}</b> в кассу <b>{}</b>."
 TEMPLATE_TRANSFER_ERROR = "Сумма перевода не должна превышать остаток в кассе или быть нулевой.\n" + TEMPLATE_SUM_TO_TRANSFER
 TEMPLATE_TRANSFER_GENERAL_ERROR = "Ошибка при попытке перевода. Сорян, братан, не сегодня."
 TEMPLATE_UPLOAD_SELECT_SERVICE = "Выберите вид коммунальных услуг для загрузки данных"
