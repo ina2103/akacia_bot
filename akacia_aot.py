@@ -712,6 +712,8 @@ def main():
     updater = Updater(token=AOT_TOKEN, use_context=True)
     dispatcher = updater.dispatcher
 
+    dispatcher.add_handler(CommandHandler(COMMAND_EXIT, command_exit), 0)
+    
     dispatcher.add_handler(CommandHandler(COMMAND_START, command_start), 1)
 
     dispatcher.add_handler(ConversationHandler(
@@ -907,8 +909,6 @@ def main():
         ],
         conversation_timeout=60
         ), 14)
-
-    dispatcher.add_handler(CommandHandler(COMMAND_EXIT, command_exit), 100)
 
     ROUTES = {
         "process__apart": {
