@@ -699,7 +699,7 @@ def process__transfer_money(update: Update, context: CallbackContext):
         text = TEMPLATE_TRANSFER_COMPLETED.format(summa, from_cashbox["cashbox_name"], to_cashbox["cashbox_name"])
         df = read_pgsql(("select DISTINCT chat_id "
             "from vw_aot_subscriber "
-            "JOIN vw_staff_cashbox ON vw_staff_cashbox.staff_id = vw_aot_subscriber.staff_id"
+            "JOIN vw_staff_cashbox ON vw_staff_cashbox.staff_id = vw_aot_subscriber.staff_id "
             f"WHERE cashbox_id IN ({to_cashbox['cashbox_id']}, {from_cashbox['cashbox_id']}) AND can_see_balance"))
         for row in df.itertuples():
             telegram_send(context.bot, row.chat_id, text)
