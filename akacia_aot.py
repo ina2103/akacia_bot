@@ -908,6 +908,8 @@ def main():
         conversation_timeout=60
         ), 14)
 
+    dispatcher.add_handler(CommandHandler(COMMAND_EXIT, command_exit), 100)
+
     ROUTES = {
         "process__apart": {
             COMMAND_AOT_ADD: conversation__list_tenants,
