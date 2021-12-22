@@ -100,7 +100,7 @@ def check_staff(staff_telegram: str, command: str) -> Union[Dict, None]:
 
 
 def select_allowed_cashboxes(staff_telegram: str) -> List[Dict]:
-    query = f"select * from vw_staff_cashbox where staff_telegram='{staff_telegram}' order by cashbox_name desc"
+    query = f"select * from vw_staff_cashbox where staff_telegram='{staff_telegram}' order by cashbox_name"
     cashboxes = read_pgsql(query)
     return [c._asdict() for c in cashboxes.itertuples(index=False)]
 

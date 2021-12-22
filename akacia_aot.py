@@ -368,7 +368,7 @@ def process__add_sum(update: Update, context: CallbackContext):
     context.user_data["comment"] = comment.replace("'", "''")
 
     cashboxes = select_allowed_cashboxes(staff_telegram)
-    cash = [cashbox["cashbox_name"] for cashbox in cashboxes if cashbox["cashbox_is_cash"]]
+    cash = [cashbox["cashbox_name"] for cashbox in cashboxes if cashbox["cashbox_is_cash"] and cashbox["can_add_to"]]
     if len(cash) > 1:
         buttons = [[x] for x in cash]
         reply_markup = ReplyKeyboardMarkup(buttons, resize_keyboard=True)
