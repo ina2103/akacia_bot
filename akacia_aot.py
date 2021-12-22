@@ -150,7 +150,8 @@ def command_transfer(update: Update, context: CallbackContext):
     cashboxes = select_allowed_cashboxes(staff_id)
     cashboxes_from = [cashbox for cashbox in cashboxes if cashbox["cashbox_is_cash"] and cashbox["can_transfer_from"]]
     cashboxes_to = [cashbox for cashbox in cashboxes if cashbox["cashbox_is_cash"] and cashbox["can_transfer_to"]]
-    buttons = [[f"{x} > {y}"] for x["cashbox_name"] in cashboxes_from for y["cashbox_name"] in cashboxes_to if x != y]
+    buttons = [[f'{x["cashbox_name"]} > {y["cashbox_name"]}'] for x in cashboxes_from for y in cashboxes_to \
+                if x["cashbox_name"] != y["cashbox_name"]]
     if (len(context.args) == 1):
         from_cashbox = next((cashbox for cashbox in cashboxes_from if cashbox["cashbox_name"]=="anna"), None)
         to_cashbox = next((cashbox for cashbox in cashboxes_to if cashbox["cashbox_name"]=="mike"), None)
