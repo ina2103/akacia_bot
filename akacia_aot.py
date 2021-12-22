@@ -160,7 +160,7 @@ def command_transfer(update: Update, context: CallbackContext):
             update.message.text = context.args[0]
             return conversation__transfer_sum(update, context)
     if len(buttons) == 1:
-        update.message.text = f'{cashboxes_from[0]["cashbox_name"]} > {cashboxes_to[0]["cashbox_name"]}'
+        update.message.text = buttons[0][0]
         return conversation__transfer_cashboxes(update, context)
     if len(buttons) > 1:
         reply_markup = ReplyKeyboardMarkup(buttons, resize_keyboard=True)
