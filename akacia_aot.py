@@ -148,23 +148,28 @@ def command_transfer(update: Update, context: CallbackContext):
         telegram_send(context.bot, chat_id, TEMPLATE_MANAGER_NO_PERMISSION)
         return ConversationHandler.END
     cashboxes = select_allowed_cashboxes(staff_id)
-    cash = [cashbox["cashbox_name"] for cashbox in cashboxes if cashbox["cashbox_is_cash"]]
-    if (len(context.args) == 1) and ("mike" in cash) and ("anna" in cash):
-        from_cashbox = next((cashbox for cashbox in cashboxes if cashbox["cashbox_name"]=="anna"), None)
-        to_cashbox = next((cashbox for cashbox in cashboxes if cashbox["cashbox_name"]=="mike"), None)
+    cashboxes_from = [cashbox["cashbox_name"] for cashbox in cashboxes if cashbox["cashbox_is_cash"] and cashbox["can_transfer_from"]]
+    cashboxes_to = [cashbox["cashbox_name"] for cashbox in cashboxes if cashbox["cashbox_is_cash"] and cashbox["can_transfer_to"]]
+    if (len(context.args) == 1):
+        from_cashbox = next((cashbox for cashbox in cashboxes_from if cashbox["cashbox_name"]=="anna"), None)
+        to_cashbox = next((cashbox for cashbox in cashboxes_to if cashbox["cashbox_name"]=="mike"), None)
         if (from_cashbox is not None) and (to_cashbox is not None):
             context.user_data["from_cashbox"] = from_cashbox
             context.user_data["to_cashbox"] = to_cashbox
             update.message.text = context.args[0]
             return conversation__transfer_sum(update, context)
-    if len(cash) > 1:
-        buttons = [[f"{x} > {y}"] for x in cash for y in cash if x != y]
+    if len(cashboxes_from) == 1 and len(cashboxes_to) == 1 \
+        and cashboxes_from[0]["cashbox_name"] != cashboxes_to[0]["cashbox_name"]:
+        update.message.text = f'{cashboxes_from[0]["cashbox_name"]} > {cashboxes_to[0]["cashbox_name"]}'
+        return conversation__transfer_cashboxes(update, context)
+    if len(cashboxes_from) >= 1 and len(cashboxes_to) >= 1:
+        buttons = [[f"{x} > {y}"] for x in cashboxes_from for y in cashboxes_to if x != y]
         reply_markup = ReplyKeyboardMarkup(buttons, resize_keyboard=True)
         telegram_send(context.bot, chat_id, TEMPLATE_SELECT_CASHBOXES, reply_markup=reply_markup)
         return WAITING_CASHBOX
-    else:
-        telegram_send(context.bot, chat_id, TEMPLATE_NO_CASHBOXES)
-        return ConversationHandler.END
+
+    telegram_send(context.bot, chat_id, TEMPLATE_NO_CASHBOXES)
+    return ConversationHandler.END
 
 
 def command_upload(update: Update, context: CallbackContext):
@@ -279,8 +284,8 @@ def conversation__transfer_cashboxes(update: Update, context: CallbackContext):
     staff_id = update.message.from_user.username
     params = update.message.text.split(" > ")
     cashboxes = select_allowed_cashboxes(staff_id)
-    from_cashbox = next((cashbox for cashbox in cashboxes if cashbox["cashbox_name"]==params[0]), None)
-    to_cashbox = next((cashbox for cashbox in cashboxes if cashbox["cashbox_name"]==params[1]), None)
+    from_cashbox = next((cashbox for cashbox in cashboxes if cashbox["cashbox_name"]==params[0] and cashbox["can_transfer_from"]), None)
+    to_cashbox = next((cashbox for cashbox in cashboxes if cashbox["cashbox_name"]==params[1] and cashbox["can_transfer_to"]), None)
     if from_cashbox is None or to_cashbox is None:
         telegram_send(context.bot, chat_id, TEMPLATE_SELECT_CASHBOXES)
         return WAITING_CASHBOX
