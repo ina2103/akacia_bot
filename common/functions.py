@@ -9,8 +9,6 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 from common import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER, LANGUAGES
 
-DB = psycopg2.connect(f"host='{DB_HOST}' port={DB_PORT} dbname='{DB_NAME}' user='{DB_USER}' password='{DB_PASSWORD}'")
-
 
 def log_error(msg: str):
     logging.log(logging.ERROR, msg)
@@ -33,24 +31,39 @@ def cachetime(minutes: int = 1):
     return decorator
 
 
+def connect_pgsql():
+    return psycopg2.connect(
+        host=DB_HOST,
+        port=DB_PORT,
+        dbname=DB_NAME,
+        user=DB_USER,
+        password=DB_PASSWORD,
+        default_transaction_isolation='read uncommitted',
+        lock_timeout=30000,
+        idle_in_transaction_session_timeout=30000
+    )
+
+
 def read_pgsql(query: str) -> pd.DataFrame:
-    try:
-        df = pd.read_sql(query, con=DB)
-        return df
-    except Exception as e:
-        log_error(f'Error executing query "{query}": {str(e)}')
-    return pd.DataFrame()
+    with connect_pgsql() as DB:
+        try:
+            df = pd.read_sql(query, con=DB)
+            return df
+        except Exception as e:
+            log_error(f'Error executing query "{query}": {str(e)}')
+        return pd.DataFrame()
 
 
 def exec_pgsql(query: str) -> bool:
-    try:
-        with DB.cursor() as cursor:
-            cursor.execute(query)
-            DB.commit()
-        return True
-    except Exception as e:
-        log_error(f'Error executing query "{query}": {str(e)}')
-    return False
+    with connect_pgsql() as DB:
+        try:
+            with DB.cursor() as cursor:
+                cursor.execute(query)
+                DB.commit()
+            return True
+        except Exception as e:
+            log_error(f'Error executing query "{query}": {str(e)}')
+        return False
 
 
 @cachetime(5)
