@@ -38,9 +38,6 @@ def connect_pgsql():
         dbname=DB_NAME,
         user=DB_USER,
         password=DB_PASSWORD,
-        default_transaction_isolation='read uncommitted',
-        lock_timeout=30000,
-        idle_in_transaction_session_timeout=30000
     )
 
 
