@@ -130,6 +130,22 @@ def command_listing(update: Update, context: CallbackContext):
         return process__apart(update, context)
 
 
+def command_out(update: Update, context: CallbackContext):
+    staff_id = update.message.from_user.username
+    chat_id = update.message.chat.id
+    staff = check_staff(staff_id, COMMAND_AOT_OUT)
+    if not staff:
+        telegram_send(context.bot, chat_id, TEMPLATE_MANAGER_NO_PERMISSION)
+        return ConversationHandler.END
+    context.user_data["route"] = COMMAND_AOT_OUT
+    if not context.args or len(context.args) == 0:
+        telegram_send(context.bot, chat_id, TEMPLATE_SEND_APART)
+        return WAITING_APART
+    else:
+        update.message.text = context.args[0]
+        return process__apart(update, context)
+
+
 def command_state(update: Update, context: CallbackContext):
     staff_id = update.message.from_user.username
     chat_id = update.message.chat.id
@@ -236,6 +252,24 @@ def conversation__listing_year(update: Update, context: CallbackContext):
         text = TEMPLATE_BILLS_NOT_FOUND[lang]
         telegram_send(context.bot, chat_id, text)
         return ConversationHandler.END
+
+
+def conversation__out(update: Update, context: CallbackContext):
+    chat_id = update.message.chat.id
+    apart = context.user_data["apart"]
+    data = read_pgsql(f"select tenant_full_name, living_start_date, tenant_telegram from vw_actual_apartment_tenant where apartment_id = {apart} AND tenant_id != 0")
+    if data.empty:
+        text = TEMPLATE_NO_TENANT.format(apart) + TEMPLATE_SEND_APART
+        telegram_send(context.bot, chat_id, text)
+        return WAITING_APART
+    tenant = data["tenant_full_name"].values[0]
+    context.user_data["living_start_date"] = data["living_start_date"].values[0]
+    context.user_data["tenant_name"] = tenant
+    context.user_data["tenant_telegram"] = data["tenant_telegram"].values[0]
+    text = TEMPLATE_TENANT_OUT.format(tenant, apart)
+    reply_markup = ReplyKeyboardMarkup([[TEMPLATE_YES, TEMPLATE_NO]], resize_keyboard=True)
+    telegram_send(context.bot, chat_id, text, reply_markup)
+    return WAITING_YES_NO
 
 
 def conversation__list_tenants(update: Update, context: CallbackContext):
@@ -662,7 +696,32 @@ def process__state_month(update: Update, context: CallbackContext):
         text = TEMPLATE_SELECT_AVAILABLE_MONTH[lang]
         telegram_send(context.bot, chat_id, text)
         return WAITING_MONTH
-    
+
+
+def process__out(update: Update, context: CallbackContext):
+    chat_id = update.message.chat.id
+    staff_id = update.message.from_user.username
+    apart = context.user_data["apart"]
+    tenant_name = context.user_data["tenant_name"]
+    tenant_telegram = context.user_data["tenant_telegram"]
+    start_date = context.user_data["living_start_date"].strftime("%d.%m.%Y")
+    confirm = update.message.text.lower()
+    if (confirm != TEMPLATE_YES.lower()):
+        text = TEMPLATE_SEND_APART
+        telegram_send(context.bot, chat_id, text)
+        return WAITING_APART
+    query = (f"call sp_process_out ({apart}::smallint, '{staff_id}');")
+    data = read_pgsql(query)
+    if not data.empty:
+        telegram_send(context.bot, chat_id, TEMPLATE_TENANT_DONE.format(tenant_name, apart,
+            start_date, date.today().strftime("%d.%m.%Y")),
+            reply_markup=ReplyKeyboardRemove())
+        tenant = check_tenant(tenant_telegram)
+        if (tenant is not None) and (tenant["chat_id"] != 0):
+            sender = Updater(token=BOT_TOKEN, use_context=True)
+            telegram_send(sender.bot, tenant["chat_id"], TEMPLATE_TENANT_GOODBYE[tenant["lang"]])
+    return ConversationHandler.END
+
 
 def process__tenant(update: Update, context: CallbackContext):
     chat_id = update.message.chat.id
@@ -917,6 +976,26 @@ def main():
         ],
         conversation_timeout=60
         ), 14)
+    
+    dispatcher.add_handler(ConversationHandler(
+        name="out",
+        entry_point=[
+            CommandHandler(COMMAND_AOT_OUT, command_out)
+        ],
+        states={
+            WAITING_APART: [
+                MessageHandler(Filters.regex(r"^([1-9]|[1-5][0-9]|6[0-6])$") & ~Filters.command, process__apart),
+                MessageHandler(Filters.text & ~Filters.command, command_out)
+            ],
+            WAITING_YES_NO: [
+                MessageHandler(Filters.regex(r"^([1-9]|[1-5][0-9]|6[0-6])$") & ~Filters.command, process__out),
+            ]
+        },
+        fallbacks=[ 
+            MessageHandler(Filters.command, command_exit)
+        ],
+        conversation_timeout=60
+        ), 19)
 
     ROUTES = {
         "process__apart": {
@@ -924,12 +1003,13 @@ def main():
             COMMAND_AOT_BALANCE: conversation__list_tenants,
             COMMAND_AOT_INFO: conversation__list_tenants,
             COMMAND_AOT_LISTING: conversation__list_tenants,
+            COMMAND_AOT_OUT: conversation__out,
         },
         "process_tenant": {
             COMMAND_AOT_ADD: conversation__add_sum,
             COMMAND_AOT_BALANCE: process__balance,
             COMMAND_AOT_INFO: conversation__info_month,
-            COMMAND_AOT_LISTING: conversation__listing_year
+            COMMAND_AOT_LISTING: conversation__listing_year,
         }
     }
 

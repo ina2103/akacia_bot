@@ -16,6 +16,7 @@ WAITING_CLAUSE = 337
 WAITING_CASHBOX = 338
 WAITING_SERVICE = 339
 WAITING_FILE = 340
+WAITING_YES_NO = 341
 
 MONTHS = {
     LANGUAGE_RU: ["январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август", "сентябрь", "октябрь", "ноябрь", "декабрь"],
@@ -218,7 +219,11 @@ TEMPLATE_EXIT_CONVERSATION = {
     LANGUAGE_SR: "Izašao si iz dijaloga.",
     LANGUAGE_EN: "You exited from dialog."
 }
-
+TEMPLATE_TENANT_GOODBYE = {
+    LANGUAGE_RU: "Спасибо, что жили в Акации. Ждем снова ❤️",
+    LANGUAGE_SR: "Hvala vam što ste ostali sa nama ❤️",
+    LANGUAGE_EN: "Thank you for staying with us. Hope to see you again ❤️"
+}
 
 TEMPLATE_BALANCE_ADM = "Баланс пользователя <b>{}</b> по квартире <b>{}</b>: <b>{}€</b>"
 TEMPLATE_BALANCE_ADM_TOTAL = "\nОбщий баланс: <b>{}€</b>"
@@ -232,6 +237,8 @@ TEMPLATE_MANAGER_NO_PERMISSION = "У вас нет прав на выполне�
 TEMPLATE_MANAGER_FOUND = f"Отправьте команду /{COMMAND_AOT_ADD} для добавления новой записи о внесении денег."
 TEMPLATE_ERROR_IN_APART = "Неверный номер квартиры, имя жильца или нет записей о проживании."
 TEMPLATE_SEND_APART = "Отправьте номер квартиры" + TEMPLATE_COMMAND_EXIT[LANGUAGE_RU]
+TEMPLATE_SEND_DATE_IN = "Отправьте дату заезда в квартиру <b>{}</b>"
+TEMPLATE_SEND_DATE_OUT = "Отправьте дату выезда <b>{}</b> из квартиры <b>{}</b>"
 TEMPLATE_SEND_TENANT = "Отправьте имя арендатора из квартиры <b>{}</b>" + TEMPLATE_COMMAND_EXIT[LANGUAGE_RU]
 TEMPLATE_SEND_SUM = ("Отправьте сумму, принятую от <b>{}</b> из квартиры <b>{}</b> (целое число без пробелов)"
     f"{TEMPLATE_COMMAND_EXIT[LANGUAGE_RU]}")
@@ -279,3 +286,6 @@ TEMPLATE_DEBTORS_ROW = "— {}, {}, @{}, {:.0f}€\n"
 TEMPLATE_DEBTORS_NO_BALANCE_ROW = "— {}, {}, @{}\n"
 TEMPLATE_FREE_APART_ADM = ("<b>{}</b>:\n")
 TEMPLATE_FREE_APART_ROW = "— {} этаж: {}\n"
+TEMPLATE_TENANT_OUT = "Оформить выезд жильца {} из квартиры {}?"
+TEMPLATE_NO_TENANT = "В квартире {} никто не проживает. Проверьте указанный номер или обратитесь к администратору базы данных.\n"
+TEMPLATE_TENANT_DONE = "<b>{}</b> здесь больше не живет. Выселен из квартиры <b>{}</b>. RIP <b>{}</b> — <b>{}</b>"
