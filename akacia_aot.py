@@ -710,14 +710,24 @@ def process__out(update: Update, context: CallbackContext):
         text = TEMPLATE_SEND_APART
         telegram_send(context.bot, chat_id, text)
         return WAITING_APART
-    query = f"call sp_process_out({apart}::smallint, '{staff_id}', 0::numeric);"
-    if exec_pgsql(query):
+    query = (
+        "create temp table t (payment_saved numeric); \n"
+        "do $$\n"
+        "declare payment_saved numeric := 0;\n"
+        "begin\n"
+        f"call sp_process_out({apart}::smallint, '{staff_id}', payment_saved);\n"
+        "insert into t values (payment_saved);\n"
+        "end $$;\n"
+        "select payment_saved from t;\n"
+    )
+    data = read_pgsql(query)
+    if not data.empty:
         df = read_pgsql(f"select balance::numeric from vw_balance where tenant_telegram = '{tenant_telegram}'")
         balance = 0
         if not df.empty:
             balance = df["balance"].values[0]
         telegram_send(context.bot, chat_id, TEMPLATE_TENANT_DONE.format(tenant_name, apart,
-            start_date, date.today().strftime("%d.%m.%Y"), balance),
+            start_date, date.today().strftime("%d.%m.%Y"), data["payment_saved"].values[0], balance),
             reply_markup=ReplyKeyboardRemove())
         tenant = check_tenant(tenant_telegram)
         if (tenant is not None) and (tenant["chat_id"] != 0):
