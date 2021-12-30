@@ -712,7 +712,7 @@ def process__out(update: Update, context: CallbackContext):
         return WAITING_APART
     query = f"call sp_process_out({apart}::smallint, '{staff_id}', 0::numeric);"
     if exec_pgsql(query):
-        df = read_pgsql("select balance::numeric from vw_balance where tenant_telegram = '{tenant_telegram}'")
+        df = read_pgsql(f"select balance::numeric from vw_balance where tenant_telegram = '{tenant_telegram}'")
         balance = 0
         if not df.empty:
             balance = df["balance"].values[0]
