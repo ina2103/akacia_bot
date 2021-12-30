@@ -979,7 +979,7 @@ def main():
     
     dispatcher.add_handler(ConversationHandler(
         name="out",
-        entry_point=[
+        entry_points=[
             CommandHandler(COMMAND_AOT_OUT, command_out)
         ],
         states={
