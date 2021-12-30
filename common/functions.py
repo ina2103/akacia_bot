@@ -45,6 +45,7 @@ def read_pgsql(query: str) -> pd.DataFrame:
     with connect_pgsql() as DB:
         try:
             df = pd.read_sql(query, con=DB)
+            DB.commit()
             return df
         except Exception as e:
             log_error(f'Error executing query "{query}": {str(e)}')
