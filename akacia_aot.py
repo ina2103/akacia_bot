@@ -994,7 +994,7 @@ def main():
                 MessageHandler(Filters.text & ~Filters.command, command_out)
             ],
             WAITING_YES_NO: [
-                MessageHandler(Filters.regex(r"^([1-9]|[1-5][0-9]|6[0-6])$") & ~Filters.command, process__out),
+                MessageHandler(Filters.text & ~Filters.command, process__out),
             ]
         },
         fallbacks=[ 
