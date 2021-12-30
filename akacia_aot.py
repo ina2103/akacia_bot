@@ -710,7 +710,7 @@ def process__out(update: Update, context: CallbackContext):
         text = TEMPLATE_SEND_APART
         telegram_send(context.bot, chat_id, text)
         return WAITING_APART
-    query = f"call sp_process_out({apart}::smallint, '{staff_id}', payment_saved);"
+    query = f"call sp_process_out({apart}::smallint, '{staff_id}', 0::numeric);"
     if exec_pgsql(query):
         df = read_pgsql("select balance::numeric from vw_balance where tenant_telegram = '{tenant_telegram}'")
         balance = 0
