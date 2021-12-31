@@ -783,6 +783,10 @@ def process__state_month(update: Update, context: CallbackContext):
 def process__new_tenant(update: Update, context: CallbackContext):
     chat_id = update.message.chat.id
     language = update.message.text.replace("'", "")
+    if language not in LANGUAGES:
+        telegram_send(context.bot, chat_id, TEMPLATE_TENANT_LANG_ERROR, 
+            reply_markup=ReplyKeyboardMarkup([[n for n in LANGUAGES]], resize_keyboard=True))
+        return WAITING_TENANT_LANGUAGE
     first_name = context.user_data["tenant_first_name"].replace("'", "")
     last_name = context.user_data["tenant_last_name"].replace("'", "")
     telegram = context.user_data["tenant_telegram"].replace("'", "")
@@ -1051,6 +1055,34 @@ def main():
         ],
         conversation_timeout=60
         ), 14)
+
+
+    dispatcher.add_handler(ConversationHandler(
+        name="tenant",
+        entry_points=[
+            CommandHandler(COMMAND_AOT_TENANT, command_new_tenant)
+        ],
+        states={
+            WAITING_TENANT: [
+                MessageHandler(Filters.contact & ~Filters.command, conversation__new_tenant_name),
+                MessageHandler(Filters.text & ~Filters.command, command_new_tenant)
+            ],
+            WAITING_TENANT_NAME: [
+                MessageHandler(Filters.text & ~Filters.command, conversation__new_tenant_lastname),
+            ],
+            WAITING_TENANT_LASTNAME: [
+                MessageHandler(Filters.text & ~Filters.command, conversation__new_tenant_language),
+            ],
+            WAITING_TENANT_LANGUAGE: [
+                MessageHandler(Filters.text & ~Filters.command, process__new_tenant),
+            ]
+        },
+        fallbacks=[ 
+            MessageHandler(Filters.command, command_exit)
+        ],
+        conversation_timeout=60
+        ), 16)
+
     
     dispatcher.add_handler(ConversationHandler(
         name="out",
