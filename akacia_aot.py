@@ -1063,7 +1063,7 @@ def main():
             CommandHandler(COMMAND_AOT_TENANT, command_new_tenant)
         ],
         states={
-            WAITING_TENANT: [
+            WAITING_CONTACT: [
                 MessageHandler(Filters.contact & ~Filters.command, conversation__new_tenant_name),
                 MessageHandler(Filters.text & ~Filters.command, command_new_tenant)
             ],
