@@ -156,6 +156,15 @@ def command_state(update: Update, context: CallbackContext):
     return conversation__state(update, context)
 
 
+def command_new_tenant(update: Update, context: CallbackContext):
+    staff_id = update.message.from_user.username
+    chat_id = update.message.chat.id
+    staff = check_staff(staff_id, COMMAND_AOT_TRANSFER)
+    if not staff:
+        telegram_send(context.bot, chat_id, TEMPLATE_MANAGER_NO_PERMISSION)
+        return ConversationHandler.END
+    return conversation__tenant(update, context)
+
 def command_transfer(update: Update, context: CallbackContext):
     staff_id = update.message.from_user.username
     chat_id = update.message.chat.id
@@ -311,6 +320,45 @@ def conversation__state(update: Update, context: CallbackContext):
         return WAITING_MONTH
     else:
         return ConversationHandler.END
+
+
+def conversation__new_tenant(update: Update, context: CallbackContext):
+    chat_id = update.message.chat.id
+    text = TEMPLATE_TENANT_TELEGRAM
+    telegram_send(context.bot, chat_id, text)    
+    return WAITING_CONTACT
+
+
+def conversation__new_tenant_name(update: Update, context: CallbackContext):
+    chat_id = update.message.chat.id
+    contact = update.message.contact
+    user_data = context.bot.get_chat(contact.user_id)
+    if user_data.username is None or user_data.username == "":
+        telegram_send(context.bot, chat_id, TEMPLATE_TENANT_TELEGRAM_NONE)
+        return ConversationHandler.END
+    context.user_data["tenant_telegram"] = user_data.username
+    context.user_data["tenant_first_name"] = user_data.first_name
+    context.user_data["tenant_last_name"] = user_data.last_name
+    context.user_data["chat_id"] = contact.user_id
+    telegram_send(context.bot, chat_id, TEMPLATE_TENANT_NAME, 
+        reply_markup=ReplyKeyboardMarkup([[user_data.first_name]], resize_keyboard=True))
+    return WAITING_TENANT_NAME
+
+
+def conversation__new_tenant_lastname(update: Update, context: CallbackContext):
+    chat_id = update.message.chat.id
+    context.user_data["tenant_first_name"] = update.message.text
+    telegram_send(context.bot, chat_id, TEMPLATE_TENANT_LASTNAME, 
+        reply_markup=ReplyKeyboardMarkup([[context.user_data["tenant_last_name"]]], resize_keyboard=True))
+    return WAITING_TENANT_LASTNAME
+
+
+def conversation__new_tenant_language(update: Update, context: CallbackContext):
+    chat_id = update.message.chat.id
+    context.user_data["tenant_last_name"] = update.message.text
+    telegram_send(context.bot, chat_id, TEMPLATE_TENANT_LANGUAGE, 
+        reply_markup=ReplyKeyboardMarkup([[n for n in LANGUAGES]], resize_keyboard=True))
+    return WAITING_TENANT_LANGUAGE
 
 
 def conversation__transfer_cashboxes(update: Update, context: CallbackContext):
@@ -672,32 +720,6 @@ def process__listing_year(update: Update, context: CallbackContext):
         return WAITING_YEAR
 
 
-def process__state_month(update: Update, context: CallbackContext):
-    param = update.message.text.lower().replace("'", "").split(" ")
-    if (len(param) == 1):
-        param.append(str(date.today().year))
-    chat_id = update.message.chat.id 
-    month = -1
-    lang = LANGUAGE_RU
-    try:
-        month = [x.lower() for x in MONTHS[lang]].index(param[0]) + 1
-        param[0] = MONTHS[lang][month - 1]
-    except ValueError:
-        pass
-    data = read_pgsql(("select rent_summa, utilities_summa, total_summa, payment_summa::numeric, quantity from vw_state"
-        f" where year = {param[1]} and month = {month}"))
-    if not data.empty:
-        row = next(data.itertuples(index=False))._asdict()
-        text = TEMPLATE_STATE.format(update.message.text, row["rent_summa"], row['utilities_summa'], row['total_summa'],
-                                    row['payment_summa'], row['payment_summa'] - row['total_summa'], row['quantity']) #const
-        telegram_send(context.bot, chat_id, text, reply_markup=ReplyKeyboardRemove())
-        return ConversationHandler.END
-    else:
-        text = TEMPLATE_SELECT_AVAILABLE_MONTH[lang]
-        telegram_send(context.bot, chat_id, text)
-        return WAITING_MONTH
-
-
 def process__out(update: Update, context: CallbackContext):
     chat_id = update.message.chat.id
     staff_id = update.message.from_user.username
@@ -729,6 +751,50 @@ def process__out(update: Update, context: CallbackContext):
     else:
         telegram_send(context.bot, chat_id, TEMPLATE_COMMON_ERROR, 
             reply_markup=ReplyKeyboardRemove())
+    return ConversationHandler.END
+
+
+def process__state_month(update: Update, context: CallbackContext):
+    param = update.message.text.lower().replace("'", "").split(" ")
+    if (len(param) == 1):
+        param.append(str(date.today().year))
+    chat_id = update.message.chat.id 
+    month = -1
+    lang = LANGUAGE_RU
+    try:
+        month = [x.lower() for x in MONTHS[lang]].index(param[0]) + 1
+        param[0] = MONTHS[lang][month - 1]
+    except ValueError:
+        pass
+    data = read_pgsql(("select rent_summa, utilities_summa, total_summa, payment_summa::numeric, quantity from vw_state"
+        f" where year = {param[1]} and month = {month}"))
+    if not data.empty:
+        row = next(data.itertuples(index=False))._asdict()
+        text = TEMPLATE_STATE.format(update.message.text, row["rent_summa"], row['utilities_summa'], row['total_summa'],
+                                    row['payment_summa'], row['payment_summa'] - row['total_summa'], row['quantity']) #const
+        telegram_send(context.bot, chat_id, text, reply_markup=ReplyKeyboardRemove())
+        return ConversationHandler.END
+    else:
+        text = TEMPLATE_SELECT_AVAILABLE_MONTH[lang]
+        telegram_send(context.bot, chat_id, text)
+        return WAITING_MONTH
+
+
+def process__new_tenant(update: Update, context: CallbackContext):
+    chat_id = update.message.chat.id
+    language = update.message.text.replace("'", "")
+    first_name = context.user_data["tenant_first_name"].replace("'", "")
+    last_name = context.user_data["tenant_last_name"].replace("'", "")
+    telegram = context.user_data["tenant_telegram"].replace("'", "")
+    tenant_chat_id = context.user_data["chat_id"]
+    query = f"call sp_add_tenant('{first_name}', '{last_name}', '{telegram}', '{language}', {tenant_chat_id})"
+    if exec_pgsql(query):
+        text = TEMPLATE_TENANT_ADDED.format(first_name, last_name)
+        telegram_send(context.bot, chat_id, text, reply_markup=ReplyKeyboardRemove())
+        sender = Updater(token=BOT_TOKEN, use_context=True)
+        telegram_send(sender.bot, tenant_chat_id, TEMPLATE_START[LANGUAGES[language]])
+    else:
+        telegram_send(context.bot, chat_id, TEMPLATE_COMMON_ERROR, reply_markup=ReplyKeyboardRemove())
     return ConversationHandler.END
 
 
