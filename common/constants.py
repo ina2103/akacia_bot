@@ -162,9 +162,9 @@ TEMPLATE_PAYMENTS = {
 }
 
 TEMPLATE_TENANT_WELCOME = {
-    LANGUAGE_RU: "Привет, <b>{}</b>, у нас есть бот, который присылает актуальную информацию по начислениям за аренду и коммуналку. Подпишись @akacia_bot",
-    LANGUAGE_SR: "Zdravo <b>{}</b>. Drago nam je što smo se sreli u našem domu. Pretplatite se na @akacia_bot da biste dobili stvarne informacije o troškovima opštinskih usluga",
-    LANGUAGE_EN: "Hi <b>{}</b>. We are glad to meet you in our home. Please subscribe to @akacia_bot to get actual info about municipal services costs"
+    LANGUAGE_RU: "Привет, {}! у нас есть бот, который присылает актуальную информацию по начислениям за аренду и коммуналку. Подпишись @akacia_bot",
+    LANGUAGE_SR: "Zdravo {}! Drago nam je što smo se sreli u našem domu. Pretplatite se na @akacia_bot da biste dobili stvarne informacije o troškovima opštinskih usluga",
+    LANGUAGE_EN: "Hi {}! We are glad to meet you in our home. Please subscribe to @akacia_bot to get actual info about municipal services costs"
 }
 
 TEMPLATE_START = {

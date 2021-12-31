@@ -790,7 +790,6 @@ def process__new_tenant(update: Update, context: CallbackContext):
     last_name = context.user_data["tenant_last_name"].replace("'", "")
     telegram = context.user_data["tenant_telegram"].replace("'", "")
     query = f"call sp_add_tenant('{first_name}', '{last_name}', '{telegram}', '{language}')"
-    print(query)
     if exec_pgsql(query):
         text = TEMPLATE_TENANT_ADDED.format(first_name, last_name)
         telegram_send(context.bot, chat_id, text, reply_markup=ReplyKeyboardRemove())
