@@ -163,7 +163,7 @@ def command_new_tenant(update: Update, context: CallbackContext):
     if not staff:
         telegram_send(context.bot, chat_id, TEMPLATE_MANAGER_NO_PERMISSION)
         return ConversationHandler.END
-    return conversation__tenant(update, context)
+    return conversation__new_tenant(update, context)
 
 def command_transfer(update: Update, context: CallbackContext):
     staff_id = update.message.from_user.username
