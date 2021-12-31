@@ -339,7 +339,7 @@ def conversation__new_tenant_name(update: Update, context: CallbackContext):
     context.user_data["tenant_telegram"] = user_data.username
     context.user_data["tenant_first_name"] = user_data.first_name
     context.user_data["tenant_last_name"] = user_data.last_name
-    context.user_data["chat_id"] = contact.user_id
+    context.user_data["tenant_chat_id"] = user_data.id
     telegram_send(context.bot, chat_id, TEMPLATE_TENANT_NAME, 
         reply_markup=ReplyKeyboardMarkup([[user_data.first_name]], resize_keyboard=True))
     return WAITING_TENANT_NAME
@@ -790,8 +790,9 @@ def process__new_tenant(update: Update, context: CallbackContext):
     first_name = context.user_data["tenant_first_name"].replace("'", "")
     last_name = context.user_data["tenant_last_name"].replace("'", "")
     telegram = context.user_data["tenant_telegram"].replace("'", "")
-    tenant_chat_id = context.user_data["chat_id"]
+    tenant_chat_id = context.user_data["tenant_chat_id"]
     query = f"call sp_add_tenant('{first_name}', '{last_name}', '{telegram}', '{language}', {tenant_chat_id})"
+    print(query)
     if exec_pgsql(query):
         text = TEMPLATE_TENANT_ADDED.format(first_name, last_name)
         telegram_send(context.bot, chat_id, text, reply_markup=ReplyKeyboardRemove())
