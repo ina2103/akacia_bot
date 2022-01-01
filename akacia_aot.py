@@ -640,7 +640,7 @@ def process__select_free_apart(update: Update, context: CallbackContext):
     if data.empty:
         return ConversationHandler.END
     free_aparts = data["apartment_number"].values
-    reply_markup = ReplyKeyboardMarkup(telegram_create_keyboard(free_aparts), resize_keyboard=True)
+    reply_markup = ReplyKeyboardMarkup(telegram_create_keyboard([str(a) for a in free_aparts]), resize_keyboard=True)
     context.user_data["free_aparts"] = free_aparts
     telegram_send(context.bot, chat_id, TEMPLATE_SHORT_STAY_APART, reply_markup)
     return WAITING_APART
