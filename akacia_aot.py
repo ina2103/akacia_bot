@@ -654,11 +654,11 @@ def process__check_free_apart(update: Update, context: CallbackContext):
         telegram_send(context.bot, chat_id, TEMPLATE_ERROR_IN_APART)
         return WAITING_APART
     if context.user_data["stay_type"] == "short":
-        query = (f"select price_short_stay_price as price from vw_price_short_stay where apartment_type_name = "
+        query = (f"select price_short_stay_price::numeric as price from vw_price_short_stay where apartment_type_name = "
             f"(select apartment_type_name from vw_free_apartment where apartment_number = {apart}) "
             f"and price_short_stay_month = extract (month from CURRENT_DATE)")
     else:
-        query = (f"select price_long_stay as price from vw_price where apartment_type_name = "
+        query = (f"select price_long_stay::numeric as price from vw_price where apartment_type_name = "
             f"(select apartment_type_name from vw_free_apartment where apartment_number = {apart})")
     data = read_pgsql(query)
     if data.empty:
