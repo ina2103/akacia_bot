@@ -155,6 +155,7 @@ def command_short_stay(update: Update, context: CallbackContext):
     if not staff:
         telegram_send(context.bot, chat_id, TEMPLATE_MANAGER_NO_PERMISSION)
         return ConversationHandler.END
+    context.user_data["route"] = COMMAND_AOT_SHORT_STAY
     return conversation__short_stay_first_name(update, context)
 
 
