@@ -9,8 +9,8 @@ from common.functions import *
 
 def telegram_check(data, token):
     for user in data.itertuples():
-        bot = Updater(token=token, use_context=True)
-        user_data = bot.get_chat(user.chat_id)
+        updater = Updater(token=token, use_context=True)
+        user_data = updater.bot.get_chat(user.chat_id)
         if user_data.username is not None and user_data.username != "":
             if user_data.username != user.tenant_telegram:
                 exec_pgsql(f"call sp_update_tenant_telegram ({user.tenant_id}::smallint, '{user_data.username}'::text);")
