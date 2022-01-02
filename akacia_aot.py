@@ -376,7 +376,7 @@ def conversation__state(update: Update, context: CallbackContext):
 def conversation__tenant_telegram(update: Update, context: CallbackContext):
     chat_id = update.message.chat.id
     text = TEMPLATE_TENANT_TELEGRAM
-    telegram_send(context.bot, chat_id, text)    
+    telegram_send(context.bot, chat_id, text)
     return WAITING_CONTACT
 
 
@@ -1019,7 +1019,7 @@ def process__transfer_money(update: Update, context: CallbackContext):
     else:
         text = TEMPLATE_TRANSFER_GENERAL_ERROR
         telegram_send(context.bot, chat_id, text)
-    
+
     return ConversationHandler.END
 
 def error_handler(update: object, context: CallbackContext) -> None:
@@ -1034,7 +1034,7 @@ def main():
     dispatcher = updater.dispatcher
 
     # dispatcher.add_handler(CommandHandler(COMMAND_EXIT, command_exit), 0)
-    
+
     dispatcher.add_handler(CommandHandler(COMMAND_START, command_start), 1)
 
     dispatcher.add_handler(ConversationHandler(
@@ -1281,7 +1281,7 @@ def main():
         ],
         conversation_timeout=60
         ), 17)
-    
+
     dispatcher.add_handler(ConversationHandler(
         name="short_stay",
         entry_points=[
@@ -1309,8 +1309,7 @@ def main():
         ],
         conversation_timeout=60
         ), 18)
-        
-        
+
     dispatcher.add_handler(ConversationHandler(
         name="out",
         entry_points=[
