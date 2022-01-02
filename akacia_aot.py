@@ -833,7 +833,17 @@ def process__living(update: Update, context: CallbackContext):
     price = context.user_data["price"]
     query = (f"call sp_add_long_stay({tenant_id}::smallint, {apart}::smallint, {price}::money, '{staff_id}'::text);") # а где я жильца выбираю? надо sp переделать
     if exec_pgsql(query):
-        start_date = date.today().strftime("%d.%m.%Y") 
+        start_date = date.today().strftime("%d.%m.%Y")
+        end_month = date.today()
+        end_month = end_month.replace(day=1)
+        if end_month.month == 12:
+            end_month = end_month.replace(month=1, year=end_month.year+1)
+        else:
+            end_month = end_month.replace(month=end_month.month+1)
+        end_month = end_month - timedelta(days=1)
+        days = (end_month - date.today()).days
+        month_length = (end_month - date.today().replace(day=1)).days
+        price = price / month_length * days
         telegram_send(context.bot, chat_id, TEMPLATE_NEW_LONG_STAY.format(start_date, apart, full_name, price))
     else:
         telegram_send(context.bot, chat_id, TEMPLATE_COMMON_ERROR) 
@@ -867,7 +877,10 @@ def process__out(update: Update, context: CallbackContext):
         tenant = check_tenant(tenant_telegram)
         if (tenant is not None) and (tenant["chat_id"] != 0):
             sender = Updater(token=BOT_TOKEN, use_context=True)
-            telegram_send(sender.bot, tenant["chat_id"], TEMPLATE_TENANT_GOODBYE[tenant["lang"]])
+            try:
+                telegram_send(sender.bot, tenant["chat_id"], TEMPLATE_TENANT_GOODBYE[tenant["lang"]])
+            except:
+                pass
     else:
         telegram_send(context.bot, chat_id, TEMPLATE_COMMON_ERROR, 
             reply_markup=ReplyKeyboardRemove())
