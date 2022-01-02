@@ -132,6 +132,18 @@ def command_listing(update: Update, context: CallbackContext):
         return process__apart(update, context)
 
 
+def command_living(update: Update, context: CallbackContext):
+    staff_id = update.message.from_user.username
+    chat_id = update.message.chat.id
+    context.user_data["stay_type"] = "long"
+    staff = check_staff(staff_id, COMMAND_AOT_LIVING)
+    if not staff:
+        telegram_send(context.bot, chat_id, TEMPLATE_MANAGER_NO_PERMISSION)
+        return ConversationHandler.END
+    context.user_data["route"] = COMMAND_AOT_LIVING
+    return conversation__tenant_telegram  (update, context)
+
+
 def command_out(update: Update, context: CallbackContext):
     staff_id = update.message.from_user.username
     chat_id = update.message.chat.id
@@ -176,7 +188,7 @@ def command_new_tenant(update: Update, context: CallbackContext):
     if not staff:
         telegram_send(context.bot, chat_id, TEMPLATE_MANAGER_NO_PERMISSION)
         return ConversationHandler.END
-    return conversation__new_tenant_telegram(update, context)
+    return conversation__tenant_telegram(update, context)
 
 
 def command_transfer(update: Update, context: CallbackContext):
@@ -361,12 +373,29 @@ def conversation__state(update: Update, context: CallbackContext):
         return ConversationHandler.END
 
 
-def conversation__new_tenant_telegram(update: Update, context: CallbackContext):
+def conversation__tenant_telegram(update: Update, context: CallbackContext):
     chat_id = update.message.chat.id
     text = TEMPLATE_TENANT_TELEGRAM
     telegram_send(context.bot, chat_id, text)    
     return WAITING_CONTACT
 
+
+def conversation__select_tenant(update: Update, context: CallbackContext):
+    chat_id = update.message.chat.id
+    contact = update.message.contact
+    user_data = context.bot.get_chat(contact.username)
+    context.user_data["tenant_telegram"] = user_data.username
+    query = f"select tenant_id, tenant_full_name from vw_tenant where tenant_telegram = '{user_data.username}'"
+    data = read_pgsql(query)
+    if not data.empty:
+        tenant_full_name = data["tenant_full_name"].values[0]
+        context.user_data["tenant_full_name"] = tenant_full_name
+        context.user_data["tenant_id"] = data["tenant_id"].values[0]
+        telegram_send(context.bot, chat_id, TEMPLATE_LIVING_APART.format(tenant_full_name))
+        return process__select_free_apart(update, context)
+    else:
+        telegram_send(context.bot, chat_id, TEMPLATE_TENANT_NOT_FOUND)
+        return ConversationHandler.END
 
 def conversation__new_tenant_first_name(update: Update, context: CallbackContext):
     chat_id = update.message.chat.id
@@ -792,6 +821,22 @@ def process__listing_year(update: Update, context: CallbackContext):
         return WAITING_YEAR
 
 
+def process__living(update: Update, context: CallbackContext):
+    chat_id = update.message.chat.id
+    staff_id = update.message.from_user.username
+    tenant_id = context.user_data["tenant_id"]
+    full_name = context.user_data["tenant_full_name"]
+    apart = context.user_data["apart"]
+    price = context.user_data["price"]
+    query = (f"call sp_add_long_stay({tenant_id}::smallint, {apart}::smallint, {price}::money, '{staff_id}'::text);") # а где я жильца выбираю? надо sp переделать
+    if exec_pgsql(query):
+        start_date = date.today().strftime("%d.%m.%Y") 
+        telegram_send(context.bot, chat_id, TEMPLATE_NEW_LONG_STAY.format(start_date, apart, full_name, price))
+    else:
+        telegram_send(context.bot, chat_id, TEMPLATE_COMMON_ERROR) 
+    return ConversationHandler.END  
+
+
 def process__out(update: Update, context: CallbackContext):
     chat_id = update.message.chat.id
     staff_id = update.message.from_user.username
@@ -1197,6 +1242,29 @@ def main():
         conversation_timeout=60
         ), 16)
 
+
+    dispatcher.add_handler(ConversationHandler(
+        name="living",
+        entry_points=[
+            CommandHandler(COMMAND_AOT_LIVING, command_living)
+        ],
+        states={
+            WAITING_CONTACT: [
+                MessageHandler(Filters.contact & ~Filters.command, conversation__select_tenant),
+                #MessageHandler(Filters.text & ~Filters.command, command_new_tenant)
+            ],
+            WAITING_APART: [
+                MessageHandler(Filters.regex(r"^([1-9]|[1-5][0-9]|6[0-6])$") & ~Filters.command, process__apart),
+            ],
+            WAITING_PRICE: [
+                MessageHandler(Filters.regex(r"^\d+$") & ~Filters.command, process__price),
+            ],
+        },
+        fallbacks=[ 
+            MessageHandler(Filters.command, command_exit)
+        ],
+        conversation_timeout=60
+        ), 17)
     
     dispatcher.add_handler(ConversationHandler(
         name="short_stay",
@@ -1255,6 +1323,7 @@ def main():
             COMMAND_AOT_LISTING: conversation__list_tenants,
             COMMAND_AOT_OUT: conversation__out,
             COMMAND_AOT_SHORT_STAY: process__check_free_apart,
+            COMMAND_AOT_LIVING: process__check_free_apart,
         },
         "process__tenant": {
             COMMAND_AOT_ADD: conversation__add_sum,
@@ -1264,6 +1333,7 @@ def main():
         },
         "process__price": {
             COMMAND_AOT_SHORT_STAY: conversation__short_stay_length,
+            COMMAND_AOT_LIVING: process__living,
         }
     }
 
