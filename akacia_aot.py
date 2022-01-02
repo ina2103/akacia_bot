@@ -394,7 +394,6 @@ def conversation__select_tenant(update: Update, context: CallbackContext):
         tenant_full_name = data["tenant_full_name"].values[0]
         context.user_data["tenant_full_name"] = tenant_full_name
         context.user_data["tenant_id"] = data["tenant_id"].values[0]
-        telegram_send(context.bot, chat_id, TEMPLATE_LIVING_APART.format(tenant_full_name))
         return process__select_free_apart(update, context)
     else:
         telegram_send(context.bot, chat_id, TEMPLATE_TENANT_NOT_FOUND)
