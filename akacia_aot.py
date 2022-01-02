@@ -383,7 +383,10 @@ def conversation__tenant_telegram(update: Update, context: CallbackContext):
 def conversation__select_tenant(update: Update, context: CallbackContext):
     chat_id = update.message.chat.id
     contact = update.message.contact
-    user_data = context.bot.get_chat(contact.username)
+    user_data = context.bot.get_chat(contact.user_id)
+    if user_data.username is None or user_data.username == "":
+        telegram_send(context.bot, chat_id, TEMPLATE_TENANT_TELEGRAM_NONE)
+        return ConversationHandler.END
     context.user_data["tenant_telegram"] = user_data.username
     query = f"select tenant_id, tenant_full_name from vw_tenant where tenant_telegram = '{user_data.username}'"
     data = read_pgsql(query)
@@ -396,6 +399,7 @@ def conversation__select_tenant(update: Update, context: CallbackContext):
     else:
         telegram_send(context.bot, chat_id, TEMPLATE_TENANT_NOT_FOUND)
         return ConversationHandler.END
+
 
 def conversation__new_tenant_first_name(update: Update, context: CallbackContext):
     chat_id = update.message.chat.id
