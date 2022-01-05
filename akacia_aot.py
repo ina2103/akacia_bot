@@ -834,13 +834,7 @@ def process__living(update: Update, context: CallbackContext):
     query = (f"call sp_add_long_stay({tenant_id}::smallint, {apart}::smallint, {price}::money, '{staff_id}'::text);") # а где я жильца выбираю? надо sp переделать
     if exec_pgsql(query):
         start_date = date.today().strftime("%d.%m.%Y")
-        end_month = date.today()
-        end_month = end_month.replace(day=1)
-        if end_month.month == 12:
-            end_month = end_month.replace(month=1, year=end_month.year+1)
-        else:
-            end_month = end_month.replace(month=end_month.month+1)
-        end_month = end_month - timedelta(days=1)
+        end_month = (date.today().replace(day=1) + timedelta(days=31)).replace(day=1) - timedelta(days=1)
         days = (end_month - date.today()).days
         month_length = (end_month - date.today().replace(day=1)).days
         price = price / month_length * days
