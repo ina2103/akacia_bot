@@ -184,7 +184,7 @@ def command_state(update: Update, context: CallbackContext):
 def command_new_tenant(update: Update, context: CallbackContext):
     staff_id = update.message.from_user.username
     chat_id = update.message.chat.id
-    staff = check_staff(staff_id, COMMAND_AOT_TRANSFER)
+    staff = check_staff(staff_id, COMMAND_AOT_TENANT)
     if not staff:
         telegram_send(context.bot, chat_id, TEMPLATE_MANAGER_NO_PERMISSION)
         return ConversationHandler.END
