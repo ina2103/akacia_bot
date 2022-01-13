@@ -383,8 +383,11 @@ def conversation__tenant_telegram(update: Update, context: CallbackContext):
 def conversation__select_tenant(update: Update, context: CallbackContext):
     chat_id = update.message.chat.id
     contact = update.message.contact
-    user_data = context.bot.get_chat(contact.user_id)
-    if user_data.username is None or user_data.username == "":
+    try:
+        user_data = context.bot.get_chat(contact.user_id)
+    except:
+        user_data = None
+    if user_data is None or user_data.username is None or user_data.username == "":
         telegram_send(context.bot, chat_id, TEMPLATE_TENANT_TELEGRAM_NONE)
         return ConversationHandler.END
     context.user_data["tenant_telegram"] = user_data.username
@@ -403,23 +406,28 @@ def conversation__select_tenant(update: Update, context: CallbackContext):
 def conversation__new_tenant_first_name(update: Update, context: CallbackContext):
     chat_id = update.message.chat.id
     contact = update.message.contact
-    user_data = context.bot.get_chat(contact.user_id)
-    if user_data.username is None or user_data.username == "":
+    try:
+        user_data = context.bot.get_chat(contact.user_id)
+    except:
+        user_data = None
+    if user_data is None or user_data.username is None or user_data.username == "":
         telegram_send(context.bot, chat_id, TEMPLATE_TENANT_TELEGRAM_NONE)
         return ConversationHandler.END
     context.user_data["tenant_telegram"] = user_data.username
     context.user_data["tenant_first_name"] = user_data.first_name
     context.user_data["tenant_last_name"] = user_data.last_name
-    telegram_send(context.bot, chat_id, TEMPLATE_TENANT_NAME, 
-        reply_markup=ReplyKeyboardMarkup([[user_data.first_name]], resize_keyboard=True))
+    reply_markup = ReplyKeyboardMarkup([[user_data.first_name]], resize_keyboard=True) if user_data.first_name != "" \
+        else ReplyKeyboardRemove()
+    telegram_send(context.bot, chat_id, TEMPLATE_TENANT_NAME, reply_markup=reply_markup)
     return WAITING_TENANT_NAME
 
 
 def conversation__new_tenant_last_name(update: Update, context: CallbackContext):
     chat_id = update.message.chat.id
     context.user_data["tenant_first_name"] = update.message.text
-    telegram_send(context.bot, chat_id, TEMPLATE_TENANT_LASTNAME, 
-        reply_markup=ReplyKeyboardMarkup([[context.user_data["tenant_last_name"]]], resize_keyboard=True))
+    reply_markup = ReplyKeyboardMarkup([[context.user_data["tenant_last_name"]]], resize_keyboard=True) if context.user_data["tenant_last_name"] != "" \
+        else ReplyKeyboardRemove()
+    telegram_send(context.bot, chat_id, TEMPLATE_TENANT_LASTNAME, reply_markup=reply_markup)
     return WAITING_TENANT_LASTNAME
 
 
