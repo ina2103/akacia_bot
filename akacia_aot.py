@@ -962,21 +962,32 @@ def process__send_option_0(update: Update, context: CallbackContext):
             lang = 0
             chat_id = 0
             balance = 0
+            sended = []
             for row in data.itertuples():
                 if tenant != row.tenant_telegram:
                     if tenant != "":
-                        telegram_send(sender.bot, chat_id, aparment_data(apart, records, other, rent, total, lang))
-                        telegram_send(sender.bot, chat_id,
-                            TEMPLATE_BALANCE[lang].format(balance, TEMPLATE_MINUS if balance < 0 else TEMPLATE_PLUS) + TEMPLATE_FOOTER[lang])
-                        apart = -1 #это что?
+                        try:
+                            telegram_send(sender.bot, chat_id, aparment_data(apart, records, other, rent, total, lang))
+                            telegram_send(sender.bot, chat_id,
+                                TEMPLATE_BALANCE[lang].format(balance, TEMPLATE_MINUS if balance < 0 else TEMPLATE_PLUS) + TEMPLATE_FOOTER[lang])
+                            sended.append(tenant)
+                        except:
+                            log_error(f"Ошибка отправки {tenant}")
+                        apart = -1
                     tenant = row.tenant_telegram
                     lang = int(LANGUAGES[row.tenant_language])
                     chat_id = row.chat_id
                     balance = row.balance
-                    telegram_send(sender.bot, chat_id, TEMPLATE_HEADER[lang])
+                    try:
+                        telegram_send(sender.bot, chat_id, TEMPLATE_HEADER[lang])
+                    except:
+                        log_error(f"Ошибка отправки {tenant}")
                 if row.apartment_number != apart:
                     if apart != -1:
-                        telegram_send(sender.bot, chat_id, aparment_data(apart, records, other, rent, total, lang))
+                        try:
+                            telegram_send(sender.bot, chat_id, aparment_data(apart, records, other, rent, total, lang))
+                        except:
+                            log_error(f"Ошибка отправки {tenant}")
                     apart = row.apartment_number
                     records = []
                     other = []
@@ -991,9 +1002,13 @@ def process__send_option_0(update: Update, context: CallbackContext):
                         records.append("    " + TEMPLATE_KOMMUNALKA_ROW.format(TEMPLATE_SERVICES[row.service_id][lang], row.summa))
                     else:
                         other.append("    " + TEMPLATE_KOMMUNALKA_ROW.format(TEMPLATE_SERVICES[row.service_id][lang], row.summa))
-            telegram_send(sender.bot, chat_id, aparment_data(apart, records, other, rent, total, lang))
-            telegram_send(sender.bot, chat_id,
-                TEMPLATE_BALANCE[lang].format(balance, TEMPLATE_MINUS if balance < 0 else TEMPLATE_PLUS) + TEMPLATE_FOOTER[lang])
+            try:
+                telegram_send(sender.bot, chat_id, aparment_data(apart, records, other, rent, total, lang))
+                telegram_send(sender.bot, chat_id,
+                    TEMPLATE_BALANCE[lang].format(balance, TEMPLATE_MINUS if balance < 0 else TEMPLATE_PLUS) + TEMPLATE_FOOTER[lang])
+                sended.append(tenant)
+            except:
+                log_error(f"Ошибка отправки {tenant}")
         telegram_send(context.bot, staff_chat_id, TEMPLATE_SENDED, reply_markup=ReplyKeyboardRemove())
     return ConversationHandler.END
 
@@ -1002,14 +1017,19 @@ def process__send_option_1(update: Update, context: CallbackContext):
     staff_chat_id = update.message.chat.id
     text =  update.message.text
     sender = Updater(token=BOT_TOKEN, use_context=True)
-    data = read_pgsql("select tenant_telegram, chat_id from vw_bot_subscriber ")
+    sended = []
+    data = read_pgsql("select tenant_telegram, chat_id from vw_bot_subscriber")
     if not data.empty:
         for row in data.itertuples():
-            telegram_send(sender.bot, row.chat_id, text)
+            try:
+                telegram_send(sender.bot, row.chat_id, text)
+                sended.append(row.tenant_telegram)
+            except:
+                log_error(f"Ошибка отправки {row.tenant_telegram}")
     telegram_send(context.bot, staff_chat_id, TEMPLATE_SENDED, reply_markup=ReplyKeyboardRemove())
     return ConversationHandler.END
 
- 
+
 def process__short_stay(update: Update, context: CallbackContext):
     chat_id = update.message.chat.id
     staff_id = update.message.from_user.username
