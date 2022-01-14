@@ -927,9 +927,11 @@ def process__price(update: Update, context: CallbackContext):
         return ConversationHandler.END
 
 
-def process__send(update: Update, context: CallbackContext):
+def process__send_option_0(update: Update, context: CallbackContext):
     staff_chat_id = update.message.chat.id
     choice =  update.message.text
+    if choice == SEND_OPTIONS[1]:
+        return WAITING_TEXT
     if choice == SEND_OPTIONS[0]:
         sender = Updater(token=BOT_TOKEN, use_context=True)
         today = date.today()
@@ -938,7 +940,7 @@ def process__send(update: Update, context: CallbackContext):
             "is_paying_utilities, apartment_number, service_id, summa::numeric from vw_charge c "
             "inner join vw_bot_subscriber b on c.tenant_telegram=b.tenant_telegram "
             "inner join vw_balance n on c.tenant_telegram=n.tenant_telegram "
-            f" where charge_year = {today.year} and charge_month = {today.month} and c.tenant_telegram in ('ina2103', 'mamenko')"
+            f" where charge_year = {today.year} and charge_month = {today.month}"
             " order by apartment_number, service_id"))
 
         def aparment_data(apart, records, other, rent, total, lang):
@@ -993,7 +995,20 @@ def process__send(update: Update, context: CallbackContext):
                 TEMPLATE_BALANCE[lang].format(balance, TEMPLATE_MINUS if balance < 0 else TEMPLATE_PLUS) + TEMPLATE_FOOTER[lang])
         telegram_send(context.bot, staff_chat_id, TEMPLATE_SENDED, reply_markup=ReplyKeyboardRemove())
     return ConversationHandler.END
-    
+
+
+def process__send_option_1(update: Update, context: CallbackContext):
+    staff_chat_id = update.message.chat.id
+    text =  update.message.text
+    sender = Updater(token=BOT_TOKEN, use_context=True)
+    data = read_pgsql(("select tenant_telegram, chat_id from vw_bot_subscriber "
+        f" where tenant_telegram in ('ina2103', 'mamenko')"))
+    if not data.empty:
+        for row in data.itertuples():
+            telegram_send(sender.bot, row.chat_id, text)
+    telegram_send(context.bot, staff_chat_id, TEMPLATE_SENDED, reply_markup=ReplyKeyboardRemove())
+    return ConversationHandler.END
+
  
 def process__short_stay(update: Update, context: CallbackContext):
     chat_id = update.message.chat.id
@@ -1398,22 +1413,6 @@ def main():
         ), 18)
 
     dispatcher.add_handler(ConversationHandler(
-        name="send",
-        entry_points=[
-            CommandHandler(COMMAND_AOT_SEND, command_send)
-        ],
-        states={
-            WAITING_CHOICE: [
-                MessageHandler(Filters.text & ~Filters.command, process__send),
-            ]
-        },
-        fallbacks=[ 
-            MessageHandler(Filters.command, command_exit)
-        ],
-        conversation_timeout=60
-        ), 20)
-
-    dispatcher.add_handler(ConversationHandler(
         name="out",
         entry_points=[
             CommandHandler(COMMAND_AOT_OUT, command_out)
@@ -1432,6 +1431,25 @@ def main():
         ],
         conversation_timeout=60
         ), 19)
+
+    dispatcher.add_handler(ConversationHandler(
+        name="send",
+        entry_points=[
+            CommandHandler(COMMAND_AOT_SEND, command_send)
+        ],
+        states={
+            WAITING_CHOICE: [
+                MessageHandler(Filters.text & ~Filters.command, process__send_option_0),
+            ],
+            WAITING_TEXT: [
+                MessageHandler(Filters.text & ~Filters.command, process__send_option_1),
+            ]
+        },
+        fallbacks=[ 
+            MessageHandler(Filters.command, command_exit)
+        ],
+        conversation_timeout=60
+        ), 20)
 
     ROUTES = {
         "process__apart": {
