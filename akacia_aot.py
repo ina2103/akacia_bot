@@ -168,7 +168,6 @@ def command_send (update: Update, context: CallbackContext):
     if not staff:
         telegram_send(context.bot, chat_id, TEMPLATE_MANAGER_NO_PERMISSION)
         return ConversationHandler.END
-    context.user_data["route"] = COMMAND_AOT_SEND
     return conversation__send(update, context)
 
 
@@ -347,10 +346,9 @@ def conversation__list_tenants(update: Update, context: CallbackContext):
 
 def conversation__send(update: Update, context: CallbackContext):
     chat_id = update.message.chat.id
-    d = pd.Series(["Ежемесячная рассылка", "Произвольный текст"])
-    buttons = [d.values]
-    reply_markup = ReplyKeyboardMarkup(telegram_create_keyboard(buttons), resize_keyboard=True)
-    telegram_send(context.bot, chat_id, TEMPLATE_SEND_TENANT.format(apart), reply_markup=reply_markup)
+    buttons = [[c] for c in SEND_OPTIONS]
+    reply_markup = ReplyKeyboardMarkup(buttons, resize_keyboard=True)
+    telegram_send(context.bot, chat_id, TEMPLATE_SEND, reply_markup=reply_markup)
     return WAITING_CHOICE
 
 
@@ -930,21 +928,17 @@ def process__price(update: Update, context: CallbackContext):
 
 
 def process__send(update: Update, context: CallbackContext):
-    chat_id = update.message.chat.id
+    staff_chat_id = update.message.chat.id
     choice =  update.message.text
-    if choice[1]:
-        message = update.message.text
-        telegram_send(context.bot, chat_id, message, reply_markup=ReplyKeyboardRemove())
-        return ConversationHandler.END
-    else:
+    if choice == SEND_OPTIONS[0]:
+        sender = Updater(token=BOT_TOKEN, use_context=True)
         today = date.today()
         month = today.month - 1 if today.month > 1 else 12
-        year = today.year if today.month > 1 else today.year - 1
         data = read_pgsql(("select c.tenant_telegram, tenant_language, b.chat_id, n.balance::numeric, "
             "is_paying_utilities, apartment_number, service_id, summa::numeric from vw_charge c "
             "inner join vw_bot_subscriber b on c.tenant_telegram=b.tenant_telegram "
             "inner join vw_balance n on c.tenant_telegram=n.tenant_telegram "
-            f" where charge_year = {today.year} and charge_month = {today.month}"
+            f" where charge_year = {today.year} and charge_month = {today.month} and c.tenant_telegram in ('ina2103', 'mamenko')"
             " order by apartment_number, service_id"))
 
         def aparment_data(apart, records, other, rent, total, lang):
@@ -997,7 +991,9 @@ def process__send(update: Update, context: CallbackContext):
             telegram_send(sender.bot, chat_id, aparment_data(apart, records, other, rent, total, lang))
             telegram_send(sender.bot, chat_id,
                 TEMPLATE_BALANCE[lang].format(balance, TEMPLATE_MINUS if balance < 0 else TEMPLATE_PLUS) + TEMPLATE_FOOTER[lang])
-
+        telegram_send(context.bot, staff_chat_id, TEMPLATE_SENDED, reply_markup=ReplyKeyboardRemove())
+    return ConversationHandler.END
+    
  
 def process__short_stay(update: Update, context: CallbackContext):
     chat_id = update.message.chat.id
