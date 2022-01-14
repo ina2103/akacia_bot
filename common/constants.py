@@ -23,6 +23,7 @@ WAITING_TENANT_LASTNAME = 344
 WAITING_TENANT_LANGUAGE = 345
 WAITING_PRICE = 346
 WAITING_LENGTH = 347
+WAITING_CHOICE = 348
 
 MONTHS = {
     LANGUAGE_RU: ["январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август", "сентябрь", "октябрь", "ноябрь", "декабрь"],
