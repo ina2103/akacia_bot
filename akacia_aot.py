@@ -1002,8 +1002,7 @@ def process__send_option_1(update: Update, context: CallbackContext):
     staff_chat_id = update.message.chat.id
     text =  update.message.text
     sender = Updater(token=BOT_TOKEN, use_context=True)
-    data = read_pgsql(("select tenant_telegram, chat_id from vw_bot_subscriber "
-        f" where tenant_telegram in ('ina2103', 'mamenko')"))
+    data = read_pgsql("select tenant_telegram, chat_id from vw_bot_subscriber ")
     if not data.empty:
         for row in data.itertuples():
             telegram_send(sender.bot, row.chat_id, text)
