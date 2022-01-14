@@ -1018,7 +1018,8 @@ def process__send_option_1(update: Update, context: CallbackContext):
     text =  update.message.text
     sender = Updater(token=BOT_TOKEN, use_context=True)
     sended = []
-    data = read_pgsql("select tenant_telegram, chat_id from vw_bot_subscriber")
+    data = read_pgsql("select tenant_telegram, chat_id from vw_actual_apartment_tenant a "
+        "join bot_subscriber b ON b.tenant_id = a.tenant_id")
     if not data.empty:
         for row in data.itertuples():
             try:
