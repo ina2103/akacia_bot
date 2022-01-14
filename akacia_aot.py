@@ -931,6 +931,7 @@ def process__send_option_0(update: Update, context: CallbackContext):
     staff_chat_id = update.message.chat.id
     choice =  update.message.text
     if choice == SEND_OPTIONS[1]:
+        telegram_send(context.bot, staff_chat_id, TEMPLATE_SEND_ARBITRARY_TEXT, reply_markup=ReplyKeyboardRemove())
         return WAITING_TEXT
     if choice == SEND_OPTIONS[0]:
         sender = Updater(token=BOT_TOKEN, use_context=True)
