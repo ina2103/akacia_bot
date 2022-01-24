@@ -11,6 +11,13 @@ from common import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER, LANGUAGES
 
 
 def log_error(msg: str):
+    '''
+    Logs an error message to the console.
+
+    :param msg: str
+    :type msg: str
+    :return: None
+    '''
     logging.log(logging.ERROR, msg)
 
 
@@ -32,6 +39,11 @@ def cachetime(minutes: int = 1):
 
 
 def connect_pgsql():
+    '''
+    It connects to a PostgreSQL database using the psycopg2 library.
+
+    :return: A connection object.
+    '''
     return psycopg2.connect(
         host=DB_HOST,
         port=DB_PORT,
@@ -42,6 +54,13 @@ def connect_pgsql():
 
 
 def read_pgsql(query: str) -> pd.DataFrame:
+    '''
+    It connects to the PostgreSQL database, executes the query, and returns the result as a Pandas
+    DataFrame.
+
+    :param query: str
+    :return: A DataFrame
+    '''
     with connect_pgsql() as DB:
         try:
             df = pd.read_sql(query, con=DB)
@@ -53,6 +72,12 @@ def read_pgsql(query: str) -> pd.DataFrame:
 
 
 def exec_pgsql(query: str) -> bool:
+    '''
+    It connects to the PostgreSQL database, executes the query, and commits the changes.
+
+    :param query: str
+    :return: result as boolean
+    '''
     with connect_pgsql() as DB:
         try:
             with DB.cursor() as cursor:
@@ -66,6 +91,11 @@ def exec_pgsql(query: str) -> bool:
 
 @cachetime(5)
 def read_tenants() -> pd.DataFrame:
+    '''
+    It reads the tenants table from the database and returns it as a pandas dataframe.
+
+    :return: A DataFrame with all the tenants.
+    '''
     try:
         tenants = read_pgsql(("select t.*, COALESCE(b.chat_id, 0::bigint) as chat_id from vw_tenant t "
             "LEFT OUTER JOIN bot_subscriber b ON b.tenant_id = t.tenant_id"))
@@ -77,6 +107,11 @@ def read_tenants() -> pd.DataFrame:
 
 @cachetime(5)
 def read_staff() -> pd.DataFrame:
+    '''
+    It reads the staff table from the database and returns it as a pandas dataframe.
+
+    :return: A DataFrame
+    '''
     try:
         staff = read_pgsql("select * from vw_staff_aot_commands")
         return staff.fillna(False)
@@ -86,6 +121,15 @@ def read_staff() -> pd.DataFrame:
 
 
 def check_tenant(tenant_telegram: str) -> Union[Dict, None]:
+    '''
+    Given a tenant's telegram, return a dictionary with the tenant's id, language and chat_id.
+
+    :param tenant_telegram: str
+    :return: A dictionary with the following keys:
+        id: The id of the tenant
+        lang: The language of the tenant
+        chat_id: The chat id of the tenant
+    '''
     try:
         tenants = read_tenants()
         if not tenants.empty:
@@ -117,6 +161,12 @@ def select_allowed_cashboxes(staff_telegram: str) -> List[Dict]:
 
 
 def telegram_create_keyboard(buttons: List) -> List:
+    '''
+    Create a list of lists of buttons.
+
+    :param buttons: List of strings
+    :return: Buttons separated by 3 in row
+    '''
     result = []
     for i in range(int(len(buttons) / 3) + 1):
         if (len(buttons) <= 3):
@@ -128,4 +178,15 @@ def telegram_create_keyboard(buttons: List) -> List:
 
 
 def telegram_send(bot, chat_id, text, reply_markup=None, ret_val=None):
+    '''
+    Send a message to a chat.
+
+    :param bot: The bot object
+    :param chat_id: The chat id of the user to send the message to
+    :param text: The text of the message to be sent
+    :param reply_markup: This is the keyboard that will be shown to the user
+    :param ret_val: If you want to return a value from the function, you can do so by setting ret_val to
+    the value you want to return
+    :return: The message object.
+    '''
     return bot.send_message(chat_id=chat_id, text=text, parse_mode="HTML", reply_markup=reply_markup) if ret_val is None else ret_val
