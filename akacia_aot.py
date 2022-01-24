@@ -865,7 +865,12 @@ def process__living(update: Update, context: CallbackContext):
         days = (end_month - date.today()).days
         month_length = (end_month - date.today().replace(day=1)).days
         price = price / month_length * days
-        telegram_send(context.bot, chat_id, TEMPLATE_NEW_LONG_STAY.format(start_date, apart, full_name, price))
+        r = read_pgsql(("select distinct chat_id "
+            "from vw_aot_subscriber "
+            "join vw_staff_aot_commands on vw_staff_aot_commands.staff_telegram = vw_aot_subscriber.staff_telegram "
+            "where living = 'true'"))
+        for row in r.itertuples():
+            telegram_send(context.bot, row.chat_id, TEMPLATE_NEW_LONG_STAY.format(start_date, apart, full_name, price))
     else:
         telegram_send(context.bot, chat_id, TEMPLATE_COMMON_ERROR) 
     return ConversationHandler.END  
@@ -1135,10 +1140,10 @@ def process__transfer_money(update: Update, context: CallbackContext):
     if exec_pgsql((f"call sp_add_transfer_order('{staff_id}', {from_cashbox['cashbox_id']}::smallint, "
         f"{to_cashbox['cashbox_id']}::smallint, {summa}::money);")):
         text = TEMPLATE_TRANSFER_COMPLETED.format(summa, from_cashbox["cashbox_name"], to_cashbox["cashbox_name"])
-        df = read_pgsql(("select DISTINCT chat_id "
+        df = read_pgsql(("select distinct chat_id "
             "from vw_aot_subscriber "
-            "JOIN vw_staff_cashbox ON vw_staff_cashbox.staff_id = vw_aot_subscriber.staff_id "
-            f"WHERE cashbox_id IN ({to_cashbox['cashbox_id']}, {from_cashbox['cashbox_id']}) AND can_see_balance"))
+            "join vw_staff_cashbox on vw_staff_cashbox.staff_id = vw_aot_subscriber.staff_id "
+            f"where cashbox_id in ({to_cashbox['cashbox_id']}, {from_cashbox['cashbox_id']}) AND can_see_balance"))
         for row in df.itertuples():
             telegram_send(context.bot, row.chat_id, text)
     else:
