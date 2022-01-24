@@ -145,7 +145,7 @@ def check_tenant(tenant_telegram: str) -> Union[Dict, None]:
 def pick_recievers(bot, query, template):
     df = read_pgsql(query)
     for row in df.itertuples():
-            telegram_send(bot, row.chat_id, template)
+        telegram_send(bot, row.chat_id, template)
 
 
 def check_staff(staff_telegram: str, command: str) -> Union[Dict, None]:
