@@ -869,7 +869,7 @@ def process__living(update: Update, context: CallbackContext):
         query = ("select distinct chat_id "
             "from vw_aot_subscriber "
             "join vw_staff_aot_commands on vw_staff_aot_commands.staff_telegram = vw_aot_subscriber.staff_telegram "
-            "where {COMMAND_AOT_LIVING} = true")
+            f"where {COMMAND_AOT_LIVING} = true")
         pick_recievers(context.bot, query, TEMPLATE_NEW_LONG_STAY.format(start_date, apart, full_name, price))
     else:
         telegram_send(context.bot, chat_id, TEMPLATE_COMMON_ERROR) 
