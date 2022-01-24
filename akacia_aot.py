@@ -1,3 +1,4 @@
+from copyreg import pickle
 from datetime import date, timedelta
 from random import choice
 
@@ -865,12 +866,11 @@ def process__living(update: Update, context: CallbackContext):
         days = (end_month - date.today()).days
         month_length = (end_month - date.today().replace(day=1)).days
         price = price / month_length * days
-        r = read_pgsql(("select distinct chat_id "
+        query = read_pgsql(("select distinct chat_id "
             "from vw_aot_subscriber "
             "join vw_staff_aot_commands on vw_staff_aot_commands.staff_telegram = vw_aot_subscriber.staff_telegram "
-            "where living = 'true'"))
-        for row in r.itertuples():
-            telegram_send(context.bot, row.chat_id, TEMPLATE_NEW_LONG_STAY.format(start_date, apart, full_name, price))
+            "where {COMMAND_AOT_LIVING} = true"))
+        pick_recievers(context.bot, query, TEMPLATE_NEW_LONG_STAY.format(start_date, apart, full_name, price))
     else:
         telegram_send(context.bot, chat_id, TEMPLATE_COMMON_ERROR) 
     return ConversationHandler.END  
@@ -1138,14 +1138,12 @@ def process__transfer_money(update: Update, context: CallbackContext):
     to_cashbox = context.user_data["to_cashbox"]
     summa = context.user_data["summa"]
     if exec_pgsql((f"call sp_add_transfer_order('{staff_id}', {from_cashbox['cashbox_id']}::smallint, "
-        f"{to_cashbox['cashbox_id']}::smallint, {summa}::money);")):
-        text = TEMPLATE_TRANSFER_COMPLETED.format(summa, from_cashbox["cashbox_name"], to_cashbox["cashbox_name"])
-        df = read_pgsql(("select distinct chat_id "
+        f"{to_cashbox['cashbox_id']}::smallint, {summa}::money);")): 
+        query = ("select distinct chat_id "
             "from vw_aot_subscriber "
             "join vw_staff_cashbox on vw_staff_cashbox.staff_id = vw_aot_subscriber.staff_id "
-            f"where cashbox_id in ({to_cashbox['cashbox_id']}, {from_cashbox['cashbox_id']}) AND can_see_balance"))
-        for row in df.itertuples():
-            telegram_send(context.bot, row.chat_id, text)
+            f"where cashbox_id in ({to_cashbox['cashbox_id']}, {from_cashbox['cashbox_id']}) AND can_see_balance")
+        pick_recievers(context.bot, query, TEMPLATE_TRANSFER_COMPLETED.format(summa, from_cashbox["cashbox_name"], to_cashbox["cashbox_name"]))
     else:
         text = TEMPLATE_TRANSFER_GENERAL_ERROR
         telegram_send(context.bot, chat_id, text)
