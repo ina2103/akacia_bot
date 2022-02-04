@@ -917,7 +917,7 @@ def process__price(update: Update, context: CallbackContext):
     price = None
     chat_id = update.message.chat.id
     try:
-        price = int(update.message.text)
+        price =  float(update.message.text.replace(",", "."))
     except ValueError:
         telegram_send(context.bot, chat_id, TEMPLATE_ERROR_SUM)
         return ConversationHandler.END
@@ -1424,7 +1424,7 @@ def main():
                 MessageHandler(Filters.regex(r"^([1-9]|[1-5][0-9]|6[0-6])$") & ~Filters.command, process__apart),
             ],
             WAITING_PRICE: [
-                MessageHandler(Filters.regex(r"^\d+$") & ~Filters.command, process__price),
+                MessageHandler(Filters.regex(r"^\d+([.,]+\d{1,2})*$") & ~Filters.command, process__price),
             ],
             WAITING_LENGTH: [
                 MessageHandler(Filters.regex(r"^([1-9]|[1-9][0-9]|[1-2][0-9][0-9])$") & ~Filters.command, process__short_stay),
