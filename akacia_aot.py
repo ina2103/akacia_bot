@@ -858,7 +858,7 @@ def process__living(update: Update, context: CallbackContext):
     tenant_id = context.user_data["tenant_id"]
     full_name = context.user_data["tenant_full_name"]
     apart = context.user_data["apart"]
-    price = context.user_data["price"]
+    price = float(update.message.text.replace(",", "."))
     query = (f"call sp_add_long_stay({tenant_id}::smallint, {apart}::smallint, {price}::money, '{staff_id}'::text);") # а где я жильца выбираю? надо sp переделать
     if exec_pgsql(query):
         start_date = date.today().strftime("%d.%m.%Y")
@@ -1298,7 +1298,7 @@ def main():
                 MessageHandler(Filters.regex(r"^.+\s[>]\s.+$") & ~Filters.command, conversation__transfer_cashboxes),
             ],
             WAITING_SUM: [
-                MessageHandler(Filters.regex(r"^\d+$") & ~Filters.command, conversation__transfer_sum),
+                MessageHandler(Filters.regex(r"^\d+([.,]+\d{1,2})*$") & ~Filters.command, conversation__transfer_sum),
             ]
         },
         fallbacks=[
