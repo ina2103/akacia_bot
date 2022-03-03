@@ -690,8 +690,8 @@ def process__free_apart(update: Update, context: CallbackContext):
             records.append(TEMPLATE_FREE_APART_ROW.format(row.apartment_floor, row.apart))
         if len(records) > 0:
             text = "".join(records)
-        telegram_send(context.bot, chat_id, TEMPLATE_FREE_APART_HEADER + text, reply_markup=ReplyKeyboardRemove())
-        return ConversationHandler.END
+    telegram_send(context.bot, chat_id, TEMPLATE_FREE_APART_HEADER + text, reply_markup=ReplyKeyboardRemove())
+    return ConversationHandler.END
 
 
 def process__select_free_apart(update: Update, context: CallbackContext):
