@@ -679,6 +679,7 @@ def process__free_apart(update: Update, context: CallbackContext):
         "ARRAY_TO_STRING(ARRAY(SELECT apartment_number FROM vw_free_apartment b WHERE a.apartment_floor = b.apartment_floor "
         "AND a.apartment_type_name = b.apartment_type_name), ', ', '') as apart "
         "FROM vw_free_apartment a"))
+    text = 'Нет свободных квартир'
     if not data.empty:
         records = []
         apartment_type = ''
@@ -687,7 +688,6 @@ def process__free_apart(update: Update, context: CallbackContext):
                 records.append(TEMPLATE_FREE_APART_ADM.format(row.apartment_type_name))
                 apartment_type = row.apartment_type_name
             records.append(TEMPLATE_FREE_APART_ROW.format(row.apartment_floor, row.apart))
-        text = 'Нет свободных квартир'
         if len(records) > 0:
             text = "".join(records)
         telegram_send(context.bot, chat_id, TEMPLATE_FREE_APART_HEADER + text, reply_markup=ReplyKeyboardRemove())
