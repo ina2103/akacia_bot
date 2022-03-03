@@ -679,7 +679,7 @@ def process__free_apart(update: Update, context: CallbackContext):
         "ARRAY_TO_STRING(ARRAY(SELECT apartment_number FROM vw_free_apartment b WHERE a.apartment_floor = b.apartment_floor "
         "AND a.apartment_type_name = b.apartment_type_name), ', ', '') as apart "
         "FROM vw_free_apartment a"))
-    text = 'Нет свободных квартир'
+    text = 'Нет свободных квартир 🤷‍♂️'
     if not data.empty:
         records = []
         apartment_type = ''
