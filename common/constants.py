@@ -307,7 +307,7 @@ TEMPLATE_PAYMENT_ACCEPTED = {
     LANGUAGE_EN: "Payment <b>{:.2f}€</b> for apartment <b>{}</b> was placed on your account. Thank you for paying in time!"
 }
 TEMPLATE_STATE = ("За <b>{}</b> начислено:\n— аренда <b>{:.0f}€</b>\n— коммунальные услуги (за предыдущий месяц) <b>{:.0f}€</b>\n"
-"— итого <b>{:.0f}€</b>\n\n Поступлений <b>{:.0f}€.</b>\n Остаток <b>{:.0f}€.</b>\n В течение месяца было занято квартир : <b>{}</b>.\n"
+"— итого <b>{:.0f}€</b>\n\n Поступлений <b>{:.0f}€.</b>\n Остаток <b>{:.0f}€.</b>\n В течение месяца было занято квартир : <b>{}</b>.\n\n"
 "Актуальные свободные квартиры по команде /free_apart")
 TEMPLATE_DEBTORS_ADM = ("За <b>{}</b> не было оплат:\n\n")
 TEMPLATE_DEBTORS_ROW = "— {}, {}, @{}, {:.0f}€\n"
