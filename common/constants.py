@@ -294,7 +294,8 @@ TEMPLATE_SEND_APART = "Отправьте номер квартиры" + TEMPLAT
 TEMPLATE_SEND_DATE_IN = "Отправьте дату заезда в квартиру <b>{}</b>"
 TEMPLATE_SEND_DATE_OUT = "Отправьте дату выезда <b>{}</b> из квартиры <b>{}</b>"
 TEMPLATE_SEND_TENANT = "Отправьте имя арендатора из квартиры <b>{}</b>" + TEMPLATE_COMMAND_EXIT[LANGUAGE_RU]
-TEMPLATE_SEND_SUM = ("Отправьте сумму, принятую от <b>{}</b> из квартиры <b>{}</b> (целое число без пробелов)"
+TEMPLATE_SEND_SUM = ("Отправьте сумму, принятую от <b>{}</b> из квартиры <b>{}</b> (целое число без пробелов)\n"
+"Для вирутальной оплаты отправьте 0 пробел сумма"
     f"{TEMPLATE_COMMAND_EXIT[LANGUAGE_RU]}")
 TEMPLATE_CONFIRM_SUM = "Внести <b>{:.2f}€</b> (как <b>{:.2f}€</b>) от <b>{}</b> в счёт оплаты квартиры <b>{}</b>?"
 TEMPLATE_DATA_SAVED = "Данные об оплате <b>{:.2f}€</b> (как <b>{:.2f}€</b>) от <b>{}</b> по квартире <b>{}</b> сохранены."
@@ -306,7 +307,8 @@ TEMPLATE_PAYMENT_ACCEPTED = {
     LANGUAGE_EN: "Payment <b>{:.2f}€</b> for apartment <b>{}</b> was placed on your account. Thank you for paying in time!"
 }
 TEMPLATE_STATE = ("За <b>{}</b> начислено:\n— аренда <b>{:.0f}€</b>\n— коммунальные услуги (за предыдущий месяц) <b>{:.0f}€</b>\n"
-"— итого <b>{:.0f}€</b>\n\n Поступлений <b>{:.0f}€.</b>\n Остаток <b>{:.0f}€.</b>\n Занято квартир: <b>{}</b>.\n")
+"— итого <b>{:.0f}€</b>\n\n Поступлений <b>{:.0f}€.</b>\n Остаток <b>{:.0f}€.</b>\n В течение месяца было занято квартир : <b>{}</b>.\n"
+"Актуальные свободные квартиры по команде /free_apart")
 TEMPLATE_DEBTORS_ADM = ("За <b>{}</b> не было оплат:\n\n")
 TEMPLATE_DEBTORS_ROW = "— {}, {}, @{}, {:.0f}€\n"
 TEMPLATE_DEBTORS_NO_BALANCE_ROW = "— {}, {}, @{}\n"

@@ -436,7 +436,7 @@ def conversation__new_tenant_first_name(update: Update, context: CallbackContext
     context.user_data["tenant_telegram"] = user_data.username
     context.user_data["tenant_first_name"] = user_data.first_name
     context.user_data["tenant_last_name"] = user_data.last_name
-    reply_markup = ReplyKeyboardMarkup([[user_data.first_name]], resize_keyboard=True) if user_data.first_name != "" \
+    reply_markup = ReplyKeyboardMarkup([[user_data.first_name]], resize_keyboard=True) if user_data.first_name \
         else ReplyKeyboardRemove()
     telegram_send(context.bot, chat_id, TEMPLATE_TENANT_NAME, reply_markup=reply_markup)
     return WAITING_TENANT_NAME
@@ -445,7 +445,8 @@ def conversation__new_tenant_first_name(update: Update, context: CallbackContext
 def conversation__new_tenant_last_name(update: Update, context: CallbackContext):
     chat_id = update.message.chat.id
     context.user_data["tenant_first_name"] = update.message.text
-    reply_markup = ReplyKeyboardMarkup([[context.user_data["tenant_last_name"]]], resize_keyboard=True) if context.user_data["tenant_last_name"] != "" \
+    last_name = context.user_data["tenant_last_name"]
+    reply_markup = ReplyKeyboardMarkup([[last_name]], resize_keyboard=True) if context.user_data["tenant_last_name"] \
         else ReplyKeyboardRemove()
     telegram_send(context.bot, chat_id, TEMPLATE_TENANT_LASTNAME, reply_markup=reply_markup)
     return WAITING_TENANT_LASTNAME
