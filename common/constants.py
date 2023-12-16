@@ -218,13 +218,13 @@ TEMPLATE_SELECT_AVAILABLE_YEAR = {
     LANGUAGE_EN: "Select a year with available data" + TEMPLATE_COMMAND_EXIT[LANGUAGE_EN]
 }
 
-TEMPLATE_LISTING_BILL = TEMPLATE_MINUS + "<pre> {} <b>–{:.2f}€</b></pre>"
-TEMPLATE_LISTING_PAYMENT = TEMPLATE_PLUS + "<pre> {} <b>+{:.2f}€</b></pre>"
+TEMPLATE_LISTING_BILL = TEMPLATE_MINUS + "{} <b>–{:.2f}€</b>"
+TEMPLATE_LISTING_PAYMENT = TEMPLATE_PLUS + "{} <b>+{:.2f}€</b>"
 
 TEMPLATE_LISTING_START = {
-    LANGUAGE_RU: "Твой баланс в начале {} года <b>{:.2f}€</b>.\n\n",
-    LANGUAGE_SR: "U pocetku {}. godine bilans je <b>{:.2f}€</b>.\n\n",
-    LANGUAGE_EN: "On January 1st, {} the balance is <b>{:.2f}€</b>.\n\n"
+    LANGUAGE_RU: "Начисления и оплаты за {} год:\n\n",
+    LANGUAGE_SR: "Načislenia i oplati za {} god:\n\n",
+    LANGUAGE_EN: "During {} charges and payments:\n\n"
 }
 
 TEMPLATE_LISTING_END = {
@@ -287,8 +287,8 @@ TEMPLATE_TRANSFER_ERROR = "Сумма перевода не должна пре�
 TEMPLATE_BALANCE_ADM = "Баланс пользователя <b>{}</b> по квартире <b>{}</b>: <b>{}€</b>"
 TEMPLATE_BALANCE_ADM_TOTAL = "\nОбщий баланс: <b>{}€</b>"
 TEMPLATE_INFO_ADM = "Пользователю <b>{}</b> по квартире <b>{}</b> за <b>{}</b> начислено:\n— аренда <b>{:.2f}€</b>\n"
-TEMPLATE_LISTING_ADM = "Баланс пользователя <b>{}</b> по квартире <b>{}</b> в начале {} года <b>{:.2f}€</b>.\n\n"
-TEMPLATE_LISTING_ROW = "<pre> {} <b>{}{:.2f}€</b>{}</pre>"
+TEMPLATE_LISTING_ADM = "Начисления и оплаты пользователя <b>{}</b> по квартире <b>{}</b> за {} год:\n\n"
+TEMPLATE_LISTING_ROW = "{} <b>{}{:.2f}€</b>{}"
 TEMPLATE_MANAGER_FOUND = f"Отправьте команду /{COMMAND_AOT_ADD} для добавления новой записи о внесении денег"
 TEMPLATE_SEND_APART = "Отправьте номер квартиры" + TEMPLATE_COMMAND_EXIT[LANGUAGE_RU]
 TEMPLATE_SEND_DATE_IN = "Отправьте дату заезда в квартиру <b>{}</b>"
