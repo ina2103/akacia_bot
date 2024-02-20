@@ -89,11 +89,11 @@ def command_listing(update: Update, context: CallbackContext):
 def process__listing_year(update: Update, context: CallbackContext):
 
     def compose_message(listing, year, apart, records, lang):
-        start_year = listing.query(f"event_year < {year} & apartment_number == {apart}")["summa"].sum()
-        end_year = listing.query(f"event_year <= {year} & apartment_number == {apart}")["summa"].sum()
-        text = TEMPLATE_LISTING_START[lang].format(year, start_year) + \
-            "\n".join(records) + \
-            TEMPLATE_LISTING_END[lang].format(year, end_year)
+        # start_year = listing.query(f"event_year < {year} & apartment_number == {apart}")["summa"].sum()
+        # end_year = listing.query(f"event_year <= {year} & apartment_number == {apart}")["summa"].sum()
+        text = TEMPLATE_LISTING_START[lang].format(year) + \
+            "\n".join(records)
+            #TEMPLATE_LISTING_END[lang].format(year, end_year)
         return text
 
     param = update.message.text.replace("'", "")

@@ -1,4 +1,4 @@
-#!/home/ec2-user/bot/bin/python3
+#!/home/ec2-user/akacia_bot/bot2/bin/python
 
 import os
 os.chdir("/home/ec2-user/akacia_bot")

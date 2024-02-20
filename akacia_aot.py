@@ -808,11 +808,11 @@ def process__info_month(update: Update, context: CallbackContext):
 def process__listing_year(update: Update, context: CallbackContext):
 
     def compose_message(listing, year, apart, records, lang, tenant_name):
-        start_year = listing.query(f"event_year < {year}")["summa"].sum()
-        end_year = listing.query(f"event_year <= {year}")["summa"].sum()
-        text = TEMPLATE_LISTING_ADM.format(tenant_name, apart, year, start_year) + \
-            "\n".join(records) + \
-            TEMPLATE_LISTING_END[lang].format(year, end_year)
+        # start_year = listing.query(f"event_year < {year}")["summa"].sum()
+        # end_year = listing.query(f"event_year <= {year}")["summa"].sum()
+        text = TEMPLATE_LISTING_ADM.format(tenant_name, apart, year) + \
+            "\n".join(records)
+            #TEMPLATE_LISTING_END[lang].format(year, end_year)
         return text
 
     apart = context.user_data["apart"]
