@@ -946,7 +946,7 @@ def process__send_option_0(update: Update, context: CallbackContext):
         data = read_pgsql(("select c.tenant_telegram, tenant_language, b.chat_id, n.balance::numeric, "
             "is_paying_utilities, apartment_number, service_id, summa::numeric from vw_charge c "
             "inner join vw_bot_subscriber b on c.tenant_telegram=b.tenant_telegram "
-            "inner join vw_balance n on c.tenant_telegram=n.tenant_telegram "
+            "inner join vw_balance n on b.tenant_id=n.tenant_id "
             f" where charge_year = {today.year} and charge_month = {today.month}"
             " order by apartment_number, service_id"))
 
