@@ -66,6 +66,16 @@ def command_balance(update: Update, context: CallbackContext):
         return process__apart(update, context)
 
 
+def command_total_debtors(update: Update, context: CallbackContext):
+    staff_id = update.message.from_user.username
+    chat_id = update.message.chat.id
+    staff = check_staff(staff_id, COMMAND_AOT_TOTAL_DEBTORS)
+    if not staff:
+        telegram_send(context.bot, chat_id, TEMPLATE_MANAGER_NO_PERMISSION)
+        return ConversationHandler.END
+    return process__total_debtors(update, context)
+
+
 def command_debtors(update: Update, context: CallbackContext):
     staff_id = update.message.from_user.username
     chat_id = update.message.chat.id
@@ -640,6 +650,20 @@ def process__balance(update: Update, context: CallbackContext):
         text = TEMPLATE_BALANCE_ADM.format(tenant_name, apart, 0)
         telegram_send(context.bot, chat_id, text, reply_markup=ReplyKeyboardRemove())
     return ConversationHandler.END
+
+
+def process__total_debtors(update: Update, context: CallbackContext):
+    chat_id = update.message.chat.id
+    data = read_pgsql(f"select tenant_full_name, tenant_telegram, balance::numeric from vw_balance where balance <= '-100' order by balance")
+    if not data.empty:
+        records = []
+        for row in data.itertuples():
+            records.append(TEMPLATE_TOTAL_DEBTORS_ROW.format(row.tenant_full_name, row.tenant_telegram, row.balance))
+        text = TEMPLATE_TOTAL_DEBTORS_ADM
+        if len(records) > 0:
+            text += "".join(records)
+        telegram_send(context.bot, chat_id, text, reply_markup=ReplyKeyboardRemove())
+        return ConversationHandler.END
 
 
 def process__debtors(update: Update, context: CallbackContext):
