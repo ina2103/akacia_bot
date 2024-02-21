@@ -654,7 +654,7 @@ def process__balance(update: Update, context: CallbackContext):
 
 def process__total_debtors(update: Update, context: CallbackContext):
     chat_id = update.message.chat.id
-    data = read_pgsql(f"select tenant_full_name, tenant_telegram, balance::numeric from vw_balance where balance <= '-100' order by balance")
+    data = read_pgsql(f"select tenant_full_name, tenant_telegram, balance::numeric from vw_balance where tenant_id <> 0 AND balance <= '-100' order by balance")
     if not data.empty:
         records = []
         for row in data.itertuples():
