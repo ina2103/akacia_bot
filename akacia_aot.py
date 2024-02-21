@@ -1349,6 +1349,18 @@ def main():
         ), 12)
 
     dispatcher.add_handler(ConversationHandler(
+        name="total_debtors",
+        entry_points=[
+            CommandHandler(COMMAND_AOT_TOTAL_DEBTORS, command_total_debtors)
+        ],
+        states={},
+        fallbacks=[ 
+            MessageHandler(Filters.command, command_exit)
+        ],
+        conversation_timeout=60
+        ), 21)
+
+    dispatcher.add_handler(ConversationHandler(
         name="debtors",
         entry_points=[
             CommandHandler(COMMAND_AOT_DEBTORS, command_debtors)
