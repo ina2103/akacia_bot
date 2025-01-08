@@ -104,9 +104,9 @@ TEMPLATE_SERVICES = [
         LANGUAGE_EN: "electricity"
     },
     {
-        LANGUAGE_RU: "мусор",
-        LANGUAGE_SR: "odvoz smeća",
-        LANGUAGE_EN: "garbage disposal"
+        LANGUAGE_RU: "сервис",
+        LANGUAGE_SR: "usluga",
+        LANGUAGE_EN: "service"
     },
     {
         LANGUAGE_RU: "аренда",
